@@ -1,65 +1,124 @@
-# CV Website
+# Professional CV Website
 
-A professional CV website built with Flutter Web.
+A modern, responsive CV/Portfolio website built with Flutter Web.
 
-## Features
+## 🌐 Live Demo
 
-- **Summary**: Professional overview and introduction
-- **Skills**: Technical and soft skills organized by category
-- **Work Experience**: Detailed employment history with descriptions
-- **Projects**: Portfolio of completed projects with technologies used
-- **Contact**: Multiple contact methods with clickable links
+Visit the live website at: [https://hossameldinmi.github.io/website/](https://hossameldinmi.github.io/website/)
 
-## Getting Started
+## 🚀 Deployment to GitHub Pages
 
-### Prerequisites
+### Method 1: Automatic Deployment (Recommended)
 
-- Flutter SDK (3.0.0 or higher)
-- A web browser
+The website automatically deploys to GitHub Pages when you push to the `main` branch.
 
-### Installation
-
-1. Clone the repository
-2. Install dependencies:
+1. **Commit your changes:**
    ```bash
-   flutter pub get
+   git add .
+   git commit -m "Update website content"
+   git push origin main
    ```
 
-### Running the Application
+2. **GitHub Actions will automatically:**
+   - Build your Flutter web app
+   - Deploy to GitHub Pages
+   - Your site will be live in 2-3 minutes
 
-To run the website in development mode:
+3. **Enable GitHub Pages (First time only):**
+   - Go to your repository on GitHub
+   - Click **Settings** → **Pages**
+   - Under **Source**, select **gh-pages** branch
+   - Click **Save**
+
+### Method 2: Manual Deployment
+
+Use the deployment script:
 
 ```bash
+./deploy.sh
+```
+
+Then push the changes:
+
+```bash
+git add .
+git commit -m "Deploy website"
+git push origin main
+```
+
+### Method 3: Manual Build and Deploy
+
+```bash
+# Build the web app
+flutter build web --release --base-href "/website/"
+
+# The build output is in build/web/
+# Push to GitHub and the workflow will deploy it
+```
+
+## 📝 Updating Content
+
+All resume data is centralized in `lib/resume_data.dart`. To update:
+
+1. Edit `lib/resume_data.dart`
+2. Save the file
+3. Commit and push to GitHub
+4. The site will auto-deploy with your changes
+
+## 🛠️ Local Development
+
+```bash
+# Install dependencies
+flutter pub get
+
+# Run locally
 flutter run -d chrome
+
+# Or specify a port
+flutter run -d chrome --web-port=8080
 ```
 
-### Building for Production
+## 📦 Project Structure
 
-To build the website for deployment:
+```
+lib/
+├── main.dart          # Main application and UI
+└── resume_data.dart   # All resume/CV data
 
-```bash
-flutter build web
+.github/
+└── workflows/
+    └── deploy.yml     # GitHub Actions deployment workflow
+
+web/
+└── index.html        # HTML entry point
 ```
 
-The built files will be in the `build/web` directory.
+## 🎨 Features
 
-## Customization
+- ✅ Responsive design (mobile, tablet, desktop)
+- ✅ Animated transitions and effects
+- ✅ Professional summary section
+- ✅ Skills showcase
+- ✅ Work experience timeline
+- ✅ Open-source projects portfolio
+- ✅ Contact information with clickable links
+- ✅ Auto-deployment to GitHub Pages
 
-Edit the `lib/main.dart` file to customize:
-- Personal information (name, title)
-- Summary text
-- Skills and categories
-- Work experience entries
-- Projects
-- Contact information
+## 🔧 Technologies
 
-## Technologies Used
+- **Flutter** - UI framework
+- **Dart** - Programming language
+- **Google Fonts** - Typography
+- **Animated Text Kit** - Text animations
+- **GitHub Pages** - Hosting
+- **GitHub Actions** - CI/CD
 
-- Flutter Web
-- Google Fonts
-- URL Launcher for clickable links
-- Material Design 3
+## 📄 License
 
-## License
+© 2024 Hossam Eldin Mahmoud. All rights reserved.
 
-This project is open source and available under the MIT License.
+## 🤝 Contact
+
+- Email: hossameldinmi@gmail.com
+- LinkedIn: [linkedin.com/in/hossameldinmi](https://linkedin.com/in/hossameldinmi)
+- GitHub: [github.com/hossameldinmi](https://github.com/hossameldinmi)
