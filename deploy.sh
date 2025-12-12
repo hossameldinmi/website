@@ -23,7 +23,7 @@ flutter pub get
 
 # Build for web
 echo "🔨 Building Flutter web app..."
-flutter build web --release --base-href "/"
+flutter build web --release --base-href "/website/"
 
 # Check if build was successful
 if [ ! -d "build/web" ]; then
