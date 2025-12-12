@@ -38,6 +38,22 @@ class Breakpoints {
   
   static bool isDesktop(BuildContext context) =>
       MediaQuery.of(context).size.width >= tablet;
+  
+  /// Calculate card width based on screen size and padding
+  /// Returns full width on mobile, half width on tablet, and fixed 350px on desktop
+  static double getCardWidth(BuildContext context, double padding, double spacing) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    
+    if (isMobile(context)) {
+      return screenWidth - (padding * 2);
+    } else if (isTablet(context)) {
+      // Ensure minimum width of 280px for tablet cards
+      final calculatedWidth = (screenWidth - (padding * 2) - spacing) / 2;
+      return calculatedWidth > 280 ? calculatedWidth : 280;
+    } else {
+      return 350.0;
+    }
+  }
 }
 
 class CVHomePage extends StatelessWidget {
@@ -180,18 +196,6 @@ class CVHomePage extends StatelessWidget {
     final padding = isMobile ? 20.0 : (isTablet ? 30.0 : 40.0);
     final titleSize = isMobile ? 24.0 : (isTablet ? 28.0 : 32.0);
     final spacing = isMobile ? 12.0 : 20.0;
-    
-    // Calculate card width based on screen size
-    double getCardWidth(BuildContext context) {
-      final screenWidth = MediaQuery.of(context).size.width;
-      if (isMobile) {
-        return screenWidth - (padding * 2);
-      } else if (isTablet) {
-        return (screenWidth - (padding * 2) - spacing) / 2;
-      } else {
-        return 350.0;
-      }
-    }
 
     return Container(
       padding: EdgeInsets.all(padding),
@@ -216,7 +220,7 @@ class CVHomePage extends StatelessWidget {
                 runSpacing: spacing,
                 children: skills.map((skillGroup) {
                   return Container(
-                    width: getCardWidth(context),
+                    width: Breakpoints.getCardWidth(context, padding, spacing),
                     padding: EdgeInsets.all(isMobile ? 16 : 20),
                     decoration: BoxDecoration(
                       color: Colors.blue.shade50,
@@ -436,18 +440,6 @@ class CVHomePage extends StatelessWidget {
     final padding = isMobile ? 20.0 : (isTablet ? 30.0 : 40.0);
     final titleSize = isMobile ? 24.0 : (isTablet ? 28.0 : 32.0);
     final spacing = isMobile ? 12.0 : 20.0;
-    
-    // Calculate card width based on screen size
-    double getCardWidth(BuildContext context) {
-      final screenWidth = MediaQuery.of(context).size.width;
-      if (isMobile) {
-        return screenWidth - (padding * 2);
-      } else if (isTablet) {
-        return (screenWidth - (padding * 2) - spacing) / 2;
-      } else {
-        return 350.0;
-      }
-    }
 
     return Container(
       padding: EdgeInsets.all(padding),
@@ -472,7 +464,7 @@ class CVHomePage extends StatelessWidget {
                 runSpacing: spacing,
                 children: projects.map((project) {
                   return Container(
-                    width: getCardWidth(context),
+                    width: Breakpoints.getCardWidth(context, padding, spacing),
                     padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
                     decoration: BoxDecoration(
                       color: Colors.grey[50],
@@ -588,18 +580,6 @@ class CVHomePage extends StatelessWidget {
     final padding = isMobile ? 20.0 : (isTablet ? 30.0 : 40.0);
     final titleSize = isMobile ? 24.0 : (isTablet ? 28.0 : 32.0);
     final spacing = isMobile ? 12.0 : 20.0;
-    
-    // Calculate card width based on screen size
-    double getCardWidth(BuildContext context) {
-      final screenWidth = MediaQuery.of(context).size.width;
-      if (isMobile) {
-        return screenWidth - (padding * 2);
-      } else if (isTablet) {
-        return (screenWidth - (padding * 2) - spacing) / 2;
-      } else {
-        return 350.0;
-      }
-    }
 
     return Container(
       padding: EdgeInsets.all(padding),
@@ -628,7 +608,7 @@ class CVHomePage extends StatelessWidget {
                         : null,
                     borderRadius: BorderRadius.circular(12),
                     child: Container(
-                      width: getCardWidth(context),
+                      width: Breakpoints.getCardWidth(context, padding, spacing),
                       padding: EdgeInsets.all(isMobile ? 16.0 : 20.0),
                       decoration: BoxDecoration(
                         color: Colors.white,
