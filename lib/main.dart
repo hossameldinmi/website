@@ -133,7 +133,7 @@ class CVHomePage extends StatelessWidget {
               AnimatedTextKit(
                 animatedTexts: [
                   TypewriterAnimatedText(
-                    'Your Name',
+                    'Hossam Eldin Mahmoud',
                     textStyle: GoogleFonts.roboto(
                       fontSize: _getResponsiveFontSize(context, 48),
                       fontWeight: FontWeight.bold,
@@ -148,7 +148,7 @@ class CVHomePage extends StatelessWidget {
               FadeInUpAnimation(
                 delay: const Duration(milliseconds: 1000),
                 child: Text(
-                  'Professional Title',
+                  'Flutter Developer | Mobile Engineer',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.roboto(
                     fontSize: _getResponsiveFontSize(context, 24),
@@ -184,9 +184,10 @@ class CVHomePage extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'Passionate and results-driven professional with extensive experience in software development. '
-                  'Skilled in creating innovative solutions and delivering high-quality products. '
-                  'Strong background in modern technologies and best practices.',
+                  'Experienced Flutter developer with a background in Mechanical Engineering. '
+                  'Specialized in mobile application development with expertise in creating open-source packages '
+                  'and SDKs. Strong track record of building production-ready Flutter applications and contributing '
+                  'to the developer community through published packages on pub.dev.',
                   style: GoogleFonts.roboto(
                     fontSize: _getResponsiveFontSize(context, 18),
                     height: 1.6,
@@ -203,9 +204,10 @@ class CVHomePage extends StatelessWidget {
 
   Widget _buildSkillsSection(BuildContext context) {
     final skills = [
-      {'category': 'Programming Languages', 'items': ['Dart', 'JavaScript', 'Python', 'Java']},
-      {'category': 'Frameworks & Tools', 'items': ['Flutter', 'React', 'Node.js', 'Git']},
-      {'category': 'Soft Skills', 'items': ['Team Leadership', 'Problem Solving', 'Communication', 'Agile']},
+      {'category': 'Mobile Development', 'items': ['Flutter', 'Dart', 'iOS', 'Android', 'SDK Development']},
+      {'category': 'Programming Languages', 'items': ['Dart', 'JavaScript', 'TypeScript', 'Python', 'Java']},
+      {'category': 'Tools & Technologies', 'items': ['Git', 'Firebase', 'REST APIs', 'CI/CD', 'Package Publishing']},
+      {'category': 'Soft Skills', 'items': ['Open Source', 'Problem Solving', 'Team Collaboration', 'Technical Writing']},
     ];
 
     final isMobile = _isMobile(context);
@@ -338,22 +340,39 @@ class CVHomePage extends StatelessWidget {
   Widget _buildProjectsSection(BuildContext context) {
     final projects = [
       {
-        'name': 'E-Commerce Platform',
-        'description': 'A full-featured e-commerce platform with payment integration, '
-            'inventory management, and user authentication.',
-        'technologies': ['Flutter', 'Firebase', 'Stripe'],
+        'name': 'Tawakkalna SDK Flutter',
+        'description': 'Flutter SDK integration for the Tawakkalna government application, '
+            'enabling secure identity verification and COVID-19 health status integration.',
+        'technologies': ['Flutter', 'Dart', 'SDK Development'],
+        'url': 'https://pub.dev/packages/tawakkalna_sdk_flutter',
       },
       {
-        'name': 'Task Management App',
-        'description': 'Collaborative task management application with real-time updates '
-            'and team collaboration features.',
-        'technologies': ['React', 'Node.js', 'MongoDB'],
+        'name': 'Media Source',
+        'description': 'Flutter package for advanced media handling and source management, '
+            'providing seamless media integration capabilities.',
+        'technologies': ['Flutter', 'Dart', 'Media APIs'],
+        'url': 'https://pub.dev/packages/media_source',
       },
       {
-        'name': 'Analytics Dashboard',
-        'description': 'Data visualization dashboard for business intelligence with '
-            'interactive charts and reporting capabilities.',
-        'technologies': ['Python', 'Django', 'D3.js'],
+        'name': 'File Type Plus',
+        'description': 'Enhanced file type detection package for Flutter applications, '
+            'supporting comprehensive file format identification.',
+        'technologies': ['Flutter', 'Dart', 'File Systems'],
+        'url': 'https://pub.dev/packages/file_type_plus',
+      },
+      {
+        'name': 'File Sized',
+        'description': 'Utility package for file size formatting and management in Flutter, '
+            'simplifying file size operations and display.',
+        'technologies': ['Flutter', 'Dart', 'Utilities'],
+        'url': 'https://pub.dev/packages/file_sized',
+      },
+      {
+        'name': 'Time of Day',
+        'description': 'Time management and formatting package for Flutter applications, '
+            'providing intuitive time selection and display features.',
+        'technologies': ['Flutter', 'Dart', 'UI Components'],
+        'url': 'https://pub.dev/packages/time_of_day',
       },
     ];
 
@@ -405,6 +424,9 @@ class CVHomePage extends StatelessWidget {
                           project: project,
                           titleFontSize: _getResponsiveFontSize(context, 20),
                           descFontSize: _getResponsiveFontSize(context, 15),
+                          onTap: project['url'] != null
+                              ? () => _launchURL(project['url'] as String)
+                              : null,
                         );
                       }).toList(),
                     );
@@ -423,8 +445,8 @@ class CVHomePage extends StatelessWidget {
       {
         'icon': Icons.email,
         'label': 'Email',
-        'value': 'your.email@example.com',
-        'url': 'mailto:your.email@example.com',
+        'value': 'hossameldinmi@gmail.com',
+        'url': 'mailto:hossameldinmi@gmail.com',
       },
       {
         'icon': Icons.phone,
@@ -441,14 +463,14 @@ class CVHomePage extends StatelessWidget {
       {
         'icon': Icons.link,
         'label': 'LinkedIn',
-        'value': 'linkedin.com/in/yourprofile',
-        'url': 'https://linkedin.com/in/yourprofile',
+        'value': 'linkedin.com/in/hossameldinmi',
+        'url': 'https://linkedin.com/in/hossameldinmi',
       },
       {
         'icon': Icons.code,
         'label': 'GitHub',
-        'value': 'github.com/yourusername',
-        'url': 'https://github.com/yourusername',
+        'value': 'github.com/hossameldinmi',
+        'url': 'https://github.com/hossameldinmi',
       },
     ];
 
@@ -523,7 +545,7 @@ class CVHomePage extends StatelessWidget {
       color: Colors.grey[800],
       child: Center(
         child: Text(
-          '© ${DateTime.now().year} Your Name. All rights reserved.',
+          '© ${DateTime.now().year} Hossam Eldin Mahmoud. All rights reserved.',
           style: GoogleFonts.roboto(
             fontSize: _getResponsiveFontSize(context, 14),
             color: Colors.white70,
@@ -813,6 +835,7 @@ class AnimatedProjectCard extends StatefulWidget {
   final Map<String, dynamic> project;
   final double titleFontSize;
   final double descFontSize;
+  final VoidCallback? onTap;
 
   const AnimatedProjectCard({
     super.key,
@@ -821,6 +844,7 @@ class AnimatedProjectCard extends StatefulWidget {
     required this.project,
     required this.titleFontSize,
     required this.descFontSize,
+    this.onTap,
   });
 
   @override
@@ -837,80 +861,93 @@ class _AnimatedProjectCardState extends State<AnimatedProjectCard> {
       child: MouseRegion(
         onEnter: (_) => setState(() => _isHovered = true),
         onExit: (_) => setState(() => _isHovered = false),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          width: widget.width,
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.grey[50],
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade300),
-            boxShadow: _isHovered
-                ? [
-                    BoxShadow(
-                      color: Colors.blue.shade100,
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
+        child: InkWell(
+          onTap: widget.onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: widget.width,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade300),
+              boxShadow: _isHovered
+                  ? [
+                      BoxShadow(
+                        color: Colors.blue.shade100,
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : [],
+            ),
+            transform: Matrix4.identity()
+              ..translate(0.0, _isHovered ? -4.0 : 0.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.folder_open,
+                      color: Colors.blue.shade600,
+                      size: 28,
                     ),
-                  ]
-                : [],
-          ),
-          transform: Matrix4.identity()
-            ..translate(0.0, _isHovered ? -4.0 : 0.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.folder_open,
-                    color: Colors.blue.shade600,
-                    size: 28,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      widget.project['name'] as String,
-                      style: GoogleFonts.roboto(
-                        fontSize: widget.titleFontSize,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue.shade800,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        widget.project['name'] as String,
+                        style: GoogleFonts.roboto(
+                          fontSize: widget.titleFontSize,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue.shade800,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                widget.project['description'] as String,
-                style: GoogleFonts.roboto(
-                  fontSize: widget.descFontSize,
-                  height: 1.5,
-                  color: Colors.grey[700],
+                    if (widget.onTap != null)
+                      Tooltip(
+                        message: 'Open on pub.dev',
+                        child: Icon(
+                          Icons.open_in_new,
+                          color: Colors.blue.shade400,
+                          size: 20,
+                        ),
+                      ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 16),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: (widget.project['technologies'] as List<String>).map((tech) {
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade100,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      tech,
-                      style: GoogleFonts.roboto(
-                        fontSize: 13,
-                        color: Colors.blue.shade900,
+                const SizedBox(height: 16),
+                Text(
+                  widget.project['description'] as String,
+                  style: GoogleFonts.roboto(
+                    fontSize: widget.descFontSize,
+                    height: 1.5,
+                    color: Colors.grey[700],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: (widget.project['technologies'] as List<String>).map((tech) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade100,
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
+                      child: Text(
+                        tech,
+                        style: GoogleFonts.roboto(
+                          fontSize: 13,
+                          color: Colors.blue.shade900,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
           ),
         ),
       ),
