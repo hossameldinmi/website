@@ -181,6 +181,12 @@ class ResumeData {
       'url': 'mailto:hossameldinmi@gmail.com',
     },
     {
+      'icon': Icons.phone,
+      'label': 'Phone',
+      'value': '+20 122 848 6542',
+      'url': 'tel:+201228486542',
+    },
+    {
       'icon': Icons.link,
       'label': 'LinkedIn',
       'value': 'linkedin.com/in/hossameldinmi',
