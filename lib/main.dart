@@ -148,7 +148,7 @@ class CVHomePage extends StatelessWidget {
               FadeInUpAnimation(
                 delay: const Duration(milliseconds: 1000),
                 child: Text(
-                  'Software Engineer',
+                  'Flutter Developer | Mobile Engineer',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.roboto(
                     fontSize: _getResponsiveFontSize(context, 24),
@@ -184,9 +184,10 @@ class CVHomePage extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'Passionate software engineer with experience in web and mobile development. '
-                  'Skilled in creating innovative solutions using modern technologies including Flutter, '
-                  'Dart, and various web frameworks. Strong background in building responsive and user-friendly applications.',
+                  'Experienced Flutter developer with a background in Mechanical Engineering. '
+                  'Specialized in mobile application development with expertise in creating open-source packages '
+                  'and SDKs. Strong track record of building production-ready Flutter applications and contributing '
+                  'to the developer community through published packages on pub.dev.',
                   style: GoogleFonts.roboto(
                     fontSize: _getResponsiveFontSize(context, 18),
                     height: 1.6,
@@ -203,9 +204,10 @@ class CVHomePage extends StatelessWidget {
 
   Widget _buildSkillsSection(BuildContext context) {
     final skills = [
-      {'category': 'Programming Languages', 'items': ['Dart', 'JavaScript', 'Python', 'Java', 'TypeScript']},
-      {'category': 'Frameworks & Tools', 'items': ['Flutter', 'React', 'Node.js', 'Git', 'Firebase']},
-      {'category': 'Soft Skills', 'items': ['Problem Solving', 'Team Collaboration', 'Communication', 'Agile Development']},
+      {'category': 'Mobile Development', 'items': ['Flutter', 'Dart', 'iOS', 'Android', 'SDK Development']},
+      {'category': 'Programming Languages', 'items': ['Dart', 'JavaScript', 'TypeScript', 'Python', 'Java']},
+      {'category': 'Tools & Technologies', 'items': ['Git', 'Firebase', 'REST APIs', 'CI/CD', 'Package Publishing']},
+      {'category': 'Soft Skills', 'items': ['Open Source', 'Problem Solving', 'Team Collaboration', 'Technical Writing']},
     ];
 
     final isMobile = _isMobile(context);
@@ -338,22 +340,34 @@ class CVHomePage extends StatelessWidget {
   Widget _buildProjectsSection(BuildContext context) {
     final projects = [
       {
-        'name': 'E-Commerce Platform',
-        'description': 'A full-featured e-commerce platform with payment integration, '
-            'inventory management, and user authentication.',
-        'technologies': ['Flutter', 'Firebase', 'Stripe'],
+        'name': 'Tawakkalna SDK Flutter',
+        'description': 'Flutter SDK integration for the Tawakkalna government application, '
+            'enabling secure identity verification and COVID-19 health status integration.',
+        'technologies': ['Flutter', 'Dart', 'SDK Development'],
       },
       {
-        'name': 'Task Management App',
-        'description': 'Collaborative task management application with real-time updates '
-            'and team collaboration features.',
-        'technologies': ['React', 'Node.js', 'MongoDB'],
+        'name': 'Media Source',
+        'description': 'Flutter package for advanced media handling and source management, '
+            'providing seamless media integration capabilities.',
+        'technologies': ['Flutter', 'Dart', 'Media APIs'],
       },
       {
-        'name': 'Analytics Dashboard',
-        'description': 'Data visualization dashboard for business intelligence with '
-            'interactive charts and reporting capabilities.',
-        'technologies': ['Python', 'Django', 'D3.js'],
+        'name': 'File Type Plus',
+        'description': 'Enhanced file type detection package for Flutter applications, '
+            'supporting comprehensive file format identification.',
+        'technologies': ['Flutter', 'Dart', 'File Systems'],
+      },
+      {
+        'name': 'File Sized',
+        'description': 'Utility package for file size formatting and management in Flutter, '
+            'simplifying file size operations and display.',
+        'technologies': ['Flutter', 'Dart', 'Utilities'],
+      },
+      {
+        'name': 'Time of Day',
+        'description': 'Time management and formatting package for Flutter applications, '
+            'providing intuitive time selection and display features.',
+        'technologies': ['Flutter', 'Dart', 'UI Components'],
       },
     ];
 
@@ -441,8 +455,8 @@ class CVHomePage extends StatelessWidget {
       {
         'icon': Icons.link,
         'label': 'LinkedIn',
-        'value': 'linkedin.com/in/yourprofile',
-        'url': 'https://linkedin.com/in/yourprofile',
+        'value': 'linkedin.com/in/hossameldinmi',
+        'url': 'https://linkedin.com/in/hossameldinmi',
       },
       {
         'icon': Icons.code,
