@@ -344,30 +344,35 @@ class CVHomePage extends StatelessWidget {
         'description': 'Flutter SDK integration for the Tawakkalna government application, '
             'enabling secure identity verification and COVID-19 health status integration.',
         'technologies': ['Flutter', 'Dart', 'SDK Development'],
+        'url': 'https://pub.dev/packages/tawakkalna_sdk_flutter',
       },
       {
         'name': 'Media Source',
         'description': 'Flutter package for advanced media handling and source management, '
             'providing seamless media integration capabilities.',
         'technologies': ['Flutter', 'Dart', 'Media APIs'],
+        'url': 'https://pub.dev/packages/media_source',
       },
       {
         'name': 'File Type Plus',
         'description': 'Enhanced file type detection package for Flutter applications, '
             'supporting comprehensive file format identification.',
         'technologies': ['Flutter', 'Dart', 'File Systems'],
+        'url': 'https://pub.dev/packages/file_type_plus',
       },
       {
         'name': 'File Sized',
         'description': 'Utility package for file size formatting and management in Flutter, '
             'simplifying file size operations and display.',
         'technologies': ['Flutter', 'Dart', 'Utilities'],
+        'url': 'https://pub.dev/packages/file_sized',
       },
       {
         'name': 'Time of Day',
         'description': 'Time management and formatting package for Flutter applications, '
             'providing intuitive time selection and display features.',
         'technologies': ['Flutter', 'Dart', 'UI Components'],
+        'url': 'https://pub.dev/packages/time_of_day',
       },
     ];
 
@@ -419,6 +424,9 @@ class CVHomePage extends StatelessWidget {
                           project: project,
                           titleFontSize: _getResponsiveFontSize(context, 20),
                           descFontSize: _getResponsiveFontSize(context, 15),
+                          onTap: project['url'] != null
+                              ? () => _launchURL(project['url'] as String)
+                              : null,
                         );
                       }).toList(),
                     );
@@ -827,6 +835,7 @@ class AnimatedProjectCard extends StatefulWidget {
   final Map<String, dynamic> project;
   final double titleFontSize;
   final double descFontSize;
+  final VoidCallback? onTap;
 
   const AnimatedProjectCard({
     super.key,
@@ -835,6 +844,7 @@ class AnimatedProjectCard extends StatefulWidget {
     required this.project,
     required this.titleFontSize,
     required this.descFontSize,
+    this.onTap,
   });
 
   @override
@@ -851,80 +861,90 @@ class _AnimatedProjectCardState extends State<AnimatedProjectCard> {
       child: MouseRegion(
         onEnter: (_) => setState(() => _isHovered = true),
         onExit: (_) => setState(() => _isHovered = false),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          width: widget.width,
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.grey[50],
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade300),
-            boxShadow: _isHovered
-                ? [
-                    BoxShadow(
-                      color: Colors.blue.shade100,
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
+        child: InkWell(
+          onTap: widget.onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: widget.width,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade300),
+              boxShadow: _isHovered
+                  ? [
+                      BoxShadow(
+                        color: Colors.blue.shade100,
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : [],
+            ),
+            transform: Matrix4.identity()
+              ..translate(0.0, _isHovered ? -4.0 : 0.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.folder_open,
+                      color: Colors.blue.shade600,
+                      size: 28,
                     ),
-                  ]
-                : [],
-          ),
-          transform: Matrix4.identity()
-            ..translate(0.0, _isHovered ? -4.0 : 0.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.folder_open,
-                    color: Colors.blue.shade600,
-                    size: 28,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      widget.project['name'] as String,
-                      style: GoogleFonts.roboto(
-                        fontSize: widget.titleFontSize,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue.shade800,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        widget.project['name'] as String,
+                        style: GoogleFonts.roboto(
+                          fontSize: widget.titleFontSize,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue.shade800,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                widget.project['description'] as String,
-                style: GoogleFonts.roboto(
-                  fontSize: widget.descFontSize,
-                  height: 1.5,
-                  color: Colors.grey[700],
+                    if (widget.onTap != null)
+                      Icon(
+                        Icons.open_in_new,
+                        color: Colors.blue.shade400,
+                        size: 20,
+                      ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 16),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: (widget.project['technologies'] as List<String>).map((tech) {
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade100,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      tech,
-                      style: GoogleFonts.roboto(
-                        fontSize: 13,
-                        color: Colors.blue.shade900,
+                const SizedBox(height: 16),
+                Text(
+                  widget.project['description'] as String,
+                  style: GoogleFonts.roboto(
+                    fontSize: widget.descFontSize,
+                    height: 1.5,
+                    color: Colors.grey[700],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: (widget.project['technologies'] as List<String>).map((tech) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade100,
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
+                      child: Text(
+                        tech,
+                        style: GoogleFonts.roboto(
+                          fontSize: 13,
+                          color: Colors.blue.shade900,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
           ),
         ),
       ),
