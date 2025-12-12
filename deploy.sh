@@ -23,7 +23,7 @@ flutter pub get
 
 # Build for web
 echo "🔨 Building Flutter web app..."
-flutter build web --release --base-href "/website/"
+flutter build web --release --base-href "/"
 
 # Check if build was successful
 if [ ! -d "build/web" ]; then
@@ -42,4 +42,4 @@ echo "   git push origin main"
 echo "3. GitHub Actions will automatically deploy to Pages"
 echo ""
 echo "🌐 Your site will be available at:"
-echo "   https://hossameldinmi.github.io/website/"
+echo "   https://hossameldinmi.github.io/"
