@@ -24,6 +24,22 @@ class CVWebsite extends StatelessWidget {
   }
 }
 
+// Responsive breakpoints
+class Breakpoints {
+  static const double mobile = 600;
+  static const double tablet = 1024;
+  
+  static bool isMobile(BuildContext context) =>
+      MediaQuery.of(context).size.width < mobile;
+  
+  static bool isTablet(BuildContext context) =>
+      MediaQuery.of(context).size.width >= mobile &&
+      MediaQuery.of(context).size.width < tablet;
+  
+  static bool isDesktop(BuildContext context) =>
+      MediaQuery.of(context).size.width >= tablet;
+}
+
 class CVHomePage extends StatelessWidget {
   const CVHomePage({super.key});
 
@@ -48,8 +64,21 @@ class CVHomePage extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context) {
+    final isMobile = Breakpoints.isMobile(context);
+    final isTablet = Breakpoints.isTablet(context);
+    
+    // Responsive values
+    final avatarRadius = isMobile ? 40.0 : (isTablet ? 50.0 : 60.0);
+    final iconSize = isMobile ? 60.0 : (isTablet ? 70.0 : 80.0);
+    final nameSize = isMobile ? 32.0 : (isTablet ? 40.0 : 48.0);
+    final titleSize = isMobile ? 18.0 : (isTablet ? 20.0 : 24.0);
+    final verticalPadding = isMobile ? 40.0 : (isTablet ? 50.0 : 60.0);
+    
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 20),
+      padding: EdgeInsets.symmetric(
+        vertical: verticalPadding, 
+        horizontal: isMobile ? 16 : 20,
+      ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [Colors.blue.shade800, Colors.blue.shade600],
@@ -60,31 +89,33 @@ class CVHomePage extends StatelessWidget {
       child: Center(
         child: Column(
           children: [
-            const CircleAvatar(
-              radius: 60,
+            CircleAvatar(
+              radius: avatarRadius,
               backgroundColor: Colors.white,
               child: Icon(
                 Icons.person,
-                size: 80,
+                size: iconSize,
                 color: Colors.blue,
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: isMobile ? 16 : 20),
             Text(
               'Your Name',
               style: GoogleFonts.roboto(
-                fontSize: 48,
+                fontSize: nameSize,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
+              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: isMobile ? 8 : 10),
             Text(
               'Professional Title',
               style: GoogleFonts.roboto(
-                fontSize: 24,
+                fontSize: titleSize,
                 color: Colors.white70,
               ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -93,47 +124,77 @@ class CVHomePage extends StatelessWidget {
   }
 
   Widget _buildSummarySection(BuildContext context) {
+    final isMobile = Breakpoints.isMobile(context);
+    final isTablet = Breakpoints.isTablet(context);
+    
+    // Responsive values
+    final padding = isMobile ? 20.0 : (isTablet ? 30.0 : 40.0);
+    final titleSize = isMobile ? 24.0 : (isTablet ? 28.0 : 32.0);
+    final textSize = isMobile ? 16.0 : 18.0;
+    
     return Container(
-      padding: const EdgeInsets.all(40),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1200),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Summary',
-              style: GoogleFonts.roboto(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue.shade800,
+      padding: EdgeInsets.all(padding),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Summary',
+                style: GoogleFonts.roboto(
+                  fontSize: titleSize,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue.shade800,
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Passionate and results-driven professional with extensive experience in software development. '
-              'Skilled in creating innovative solutions and delivering high-quality products. '
-              'Strong background in modern technologies and best practices.',
-              style: GoogleFonts.roboto(
-                fontSize: 18,
-                height: 1.6,
-                color: Colors.grey[700],
+              SizedBox(height: isMobile ? 12 : 20),
+              Text(
+                'Passionate and results-driven professional with extensive experience in software development. '
+                'Skilled in creating innovative solutions and delivering high-quality products. '
+                'Strong background in modern technologies and best practices.',
+                style: GoogleFonts.roboto(
+                  fontSize: textSize,
+                  height: 1.6,
+                  color: Colors.grey[700],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildSkillsSection(BuildContext context) {
+    final isMobile = Breakpoints.isMobile(context);
+    final isTablet = Breakpoints.isTablet(context);
+    
     final skills = [
       {'category': 'Programming Languages', 'items': ['Dart', 'JavaScript', 'Python', 'Java']},
       {'category': 'Frameworks & Tools', 'items': ['Flutter', 'React', 'Node.js', 'Git']},
       {'category': 'Soft Skills', 'items': ['Team Leadership', 'Problem Solving', 'Communication', 'Agile']},
     ];
 
+    // Responsive values
+    final padding = isMobile ? 20.0 : (isTablet ? 30.0 : 40.0);
+    final titleSize = isMobile ? 24.0 : (isTablet ? 28.0 : 32.0);
+    final spacing = isMobile ? 12.0 : 20.0;
+    
+    // Calculate card width based on screen size
+    double getCardWidth(BuildContext context) {
+      final screenWidth = MediaQuery.of(context).size.width;
+      if (isMobile) {
+        return screenWidth - (padding * 2);
+      } else if (isTablet) {
+        return (screenWidth - (padding * 2) - spacing) / 2;
+      } else {
+        return 350.0;
+      }
+    }
+
     return Container(
-      padding: const EdgeInsets.all(40),
+      padding: EdgeInsets.all(padding),
       color: Colors.white,
       child: Center(
         child: ConstrainedBox(
@@ -144,19 +205,19 @@ class CVHomePage extends StatelessWidget {
               Text(
                 'Skills',
                 style: GoogleFonts.roboto(
-                  fontSize: 32,
+                  fontSize: titleSize,
                   fontWeight: FontWeight.bold,
                   color: Colors.blue.shade800,
                 ),
               ),
-              const SizedBox(height: 30),
+              SizedBox(height: isMobile ? 20 : 30),
               Wrap(
-                spacing: 20,
-                runSpacing: 20,
+                spacing: spacing,
+                runSpacing: spacing,
                 children: skills.map((skillGroup) {
                   return Container(
-                    width: MediaQuery.of(context).size.width > 800 ? 350 : double.infinity,
-                    padding: const EdgeInsets.all(20),
+                    width: getCardWidth(context),
+                    padding: EdgeInsets.all(isMobile ? 16 : 20),
                     decoration: BoxDecoration(
                       color: Colors.blue.shade50,
                       borderRadius: BorderRadius.circular(12),
@@ -168,12 +229,12 @@ class CVHomePage extends StatelessWidget {
                         Text(
                           skillGroup['category'] as String,
                           style: GoogleFonts.roboto(
-                            fontSize: 20,
+                            fontSize: isMobile ? 18.0 : 20.0,
                             fontWeight: FontWeight.bold,
                             color: Colors.blue.shade800,
                           ),
                         ),
-                        const SizedBox(height: 15),
+                        SizedBox(height: isMobile ? 12 : 15),
                         Wrap(
                           spacing: 8,
                           runSpacing: 8,
@@ -183,6 +244,11 @@ class CVHomePage extends StatelessWidget {
                               backgroundColor: Colors.blue.shade100,
                               labelStyle: GoogleFonts.roboto(
                                 color: Colors.blue.shade900,
+                                fontSize: isMobile ? 13.0 : 14.0,
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isMobile ? 8 : 12,
+                                vertical: isMobile ? 4 : 8,
                               ),
                             );
                           }).toList(),
@@ -200,6 +266,9 @@ class CVHomePage extends StatelessWidget {
   }
 
   Widget _buildExperienceSection(BuildContext context) {
+    final isMobile = Breakpoints.isMobile(context);
+    final isTablet = Breakpoints.isTablet(context);
+    
     final experiences = [
       {
         'title': 'Senior Software Engineer',
@@ -224,8 +293,14 @@ class CVHomePage extends StatelessWidget {
       },
     ];
 
+    // Responsive values
+    final padding = isMobile ? 20.0 : (isTablet ? 30.0 : 40.0);
+    final titleSize = isMobile ? 24.0 : (isTablet ? 28.0 : 32.0);
+    final cardPadding = isMobile ? 16.0 : 24.0;
+    final cardMargin = isMobile ? 16.0 : 30.0;
+
     return Container(
-      padding: const EdgeInsets.all(40),
+      padding: EdgeInsets.all(padding),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1200),
@@ -235,16 +310,16 @@ class CVHomePage extends StatelessWidget {
               Text(
                 'Work Experience',
                 style: GoogleFonts.roboto(
-                  fontSize: 32,
+                  fontSize: titleSize,
                   fontWeight: FontWeight.bold,
                   color: Colors.blue.shade800,
                 ),
               ),
-              const SizedBox(height: 30),
+              SizedBox(height: isMobile ? 20 : 30),
               ...experiences.map((exp) {
                 return Container(
-                  margin: const EdgeInsets.only(bottom: 30),
-                  padding: const EdgeInsets.all(24),
+                  margin: EdgeInsets.only(bottom: cardMargin),
+                  padding: EdgeInsets.all(cardPadding),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -259,42 +334,64 @@ class CVHomePage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              exp['title'] as String,
-                              style: GoogleFonts.roboto(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue.shade800,
+                      if (isMobile) ...[
+                        // Stack layout for mobile
+                        Text(
+                          exp['title'] as String,
+                          style: GoogleFonts.roboto(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue.shade800,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          exp['period'] as String,
+                          style: GoogleFonts.roboto(
+                            fontSize: 14.0,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ] else ...[
+                        // Row layout for tablet/desktop
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                exp['title'] as String,
+                                style: GoogleFonts.roboto(
+                                  fontSize: isTablet ? 20.0 : 22.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue.shade800,
+                                ),
                               ),
                             ),
-                          ),
-                          Text(
-                            exp['period'] as String,
-                            style: GoogleFonts.roboto(
-                              fontSize: 16,
-                              color: Colors.grey[600],
+                            Text(
+                              exp['period'] as String,
+                              style: GoogleFonts.roboto(
+                                fontSize: 16.0,
+                                color: Colors.grey[600],
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
+                          ],
+                        ),
+                      ],
+                      SizedBox(height: isMobile ? 6 : 8),
                       Text(
                         exp['company'] as String,
                         style: GoogleFonts.roboto(
-                          fontSize: 18,
+                          fontSize: isMobile ? 16.0 : 18.0,
                           fontWeight: FontWeight.w500,
                           color: Colors.grey[700],
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: isMobile ? 10 : 12),
                       Text(
                         exp['description'] as String,
                         style: GoogleFonts.roboto(
-                          fontSize: 16,
+                          fontSize: isMobile ? 14.0 : 16.0,
                           height: 1.5,
                           color: Colors.grey[600],
                         ),
@@ -311,6 +408,9 @@ class CVHomePage extends StatelessWidget {
   }
 
   Widget _buildProjectsSection(BuildContext context) {
+    final isMobile = Breakpoints.isMobile(context);
+    final isTablet = Breakpoints.isTablet(context);
+    
     final projects = [
       {
         'name': 'E-Commerce Platform',
@@ -332,8 +432,25 @@ class CVHomePage extends StatelessWidget {
       },
     ];
 
+    // Responsive values
+    final padding = isMobile ? 20.0 : (isTablet ? 30.0 : 40.0);
+    final titleSize = isMobile ? 24.0 : (isTablet ? 28.0 : 32.0);
+    final spacing = isMobile ? 12.0 : 20.0;
+    
+    // Calculate card width based on screen size
+    double getCardWidth(BuildContext context) {
+      final screenWidth = MediaQuery.of(context).size.width;
+      if (isMobile) {
+        return screenWidth - (padding * 2);
+      } else if (isTablet) {
+        return (screenWidth - (padding * 2) - spacing) / 2;
+      } else {
+        return 350.0;
+      }
+    }
+
     return Container(
-      padding: const EdgeInsets.all(40),
+      padding: EdgeInsets.all(padding),
       color: Colors.white,
       child: Center(
         child: ConstrainedBox(
@@ -344,19 +461,19 @@ class CVHomePage extends StatelessWidget {
               Text(
                 'Projects',
                 style: GoogleFonts.roboto(
-                  fontSize: 32,
+                  fontSize: titleSize,
                   fontWeight: FontWeight.bold,
                   color: Colors.blue.shade800,
                 ),
               ),
-              const SizedBox(height: 30),
+              SizedBox(height: isMobile ? 20 : 30),
               Wrap(
-                spacing: 20,
-                runSpacing: 20,
+                spacing: spacing,
+                runSpacing: spacing,
                 children: projects.map((project) {
                   return Container(
-                    width: MediaQuery.of(context).size.width > 800 ? 350 : double.infinity,
-                    padding: const EdgeInsets.all(24),
+                    width: getCardWidth(context),
+                    padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
                     decoration: BoxDecoration(
                       color: Colors.grey[50],
                       borderRadius: BorderRadius.circular(12),
@@ -370,14 +487,14 @@ class CVHomePage extends StatelessWidget {
                             Icon(
                               Icons.folder_open,
                               color: Colors.blue.shade600,
-                              size: 28,
+                              size: isMobile ? 24.0 : 28.0,
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: isMobile ? 8 : 12),
                             Expanded(
                               child: Text(
                                 project['name'] as String,
                                 style: GoogleFonts.roboto(
-                                  fontSize: 20,
+                                  fontSize: isMobile ? 18.0 : 20.0,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.blue.shade800,
                                 ),
@@ -385,22 +502,25 @@ class CVHomePage extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: isMobile ? 12 : 16),
                         Text(
                           project['description'] as String,
                           style: GoogleFonts.roboto(
-                            fontSize: 15,
+                            fontSize: isMobile ? 14.0 : 15.0,
                             height: 1.5,
                             color: Colors.grey[700],
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: isMobile ? 12 : 16),
                         Wrap(
                           spacing: 8,
                           runSpacing: 8,
                           children: (project['technologies'] as List<String>).map((tech) {
                             return Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isMobile ? 10 : 12,
+                                vertical: isMobile ? 4 : 6,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.blue.shade100,
                                 borderRadius: BorderRadius.circular(20),
@@ -408,7 +528,7 @@ class CVHomePage extends StatelessWidget {
                               child: Text(
                                 tech,
                                 style: GoogleFonts.roboto(
-                                  fontSize: 13,
+                                  fontSize: isMobile ? 12.0 : 13.0,
                                   color: Colors.blue.shade900,
                                 ),
                               ),
@@ -428,6 +548,9 @@ class CVHomePage extends StatelessWidget {
   }
 
   Widget _buildContactsSection(BuildContext context) {
+    final isMobile = Breakpoints.isMobile(context);
+    final isTablet = Breakpoints.isTablet(context);
+    
     final contacts = [
       {
         'icon': Icons.email,
@@ -461,8 +584,25 @@ class CVHomePage extends StatelessWidget {
       },
     ];
 
+    // Responsive values
+    final padding = isMobile ? 20.0 : (isTablet ? 30.0 : 40.0);
+    final titleSize = isMobile ? 24.0 : (isTablet ? 28.0 : 32.0);
+    final spacing = isMobile ? 12.0 : 20.0;
+    
+    // Calculate card width based on screen size
+    double getCardWidth(BuildContext context) {
+      final screenWidth = MediaQuery.of(context).size.width;
+      if (isMobile) {
+        return screenWidth - (padding * 2);
+      } else if (isTablet) {
+        return (screenWidth - (padding * 2) - spacing) / 2;
+      } else {
+        return 350.0;
+      }
+    }
+
     return Container(
-      padding: const EdgeInsets.all(40),
+      padding: EdgeInsets.all(padding),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1200),
@@ -472,23 +612,24 @@ class CVHomePage extends StatelessWidget {
               Text(
                 'Contact',
                 style: GoogleFonts.roboto(
-                  fontSize: 32,
+                  fontSize: titleSize,
                   fontWeight: FontWeight.bold,
                   color: Colors.blue.shade800,
                 ),
               ),
-              const SizedBox(height: 30),
+              SizedBox(height: isMobile ? 20 : 30),
               Wrap(
-                spacing: 20,
-                runSpacing: 20,
+                spacing: spacing,
+                runSpacing: spacing,
                 children: contacts.map((contact) {
                   return InkWell(
                     onTap: contact['url'] != null
                         ? () => _launchURL(contact['url'] as String)
                         : null,
+                    borderRadius: BorderRadius.circular(12),
                     child: Container(
-                      width: MediaQuery.of(context).size.width > 800 ? 350 : double.infinity,
-                      padding: const EdgeInsets.all(20),
+                      width: getCardWidth(context),
+                      padding: EdgeInsets.all(isMobile ? 16.0 : 20.0),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
@@ -505,9 +646,9 @@ class CVHomePage extends StatelessWidget {
                           Icon(
                             contact['icon'] as IconData,
                             color: Colors.blue.shade600,
-                            size: 32,
+                            size: isMobile ? 28.0 : 32.0,
                           ),
-                          const SizedBox(width: 16),
+                          SizedBox(width: isMobile ? 12 : 16),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -515,18 +656,19 @@ class CVHomePage extends StatelessWidget {
                                 Text(
                                   contact['label'] as String,
                                   style: GoogleFonts.roboto(
-                                    fontSize: 14,
+                                    fontSize: isMobile ? 13.0 : 14.0,
                                     color: Colors.grey[600],
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                                SizedBox(height: isMobile ? 2 : 4),
                                 Text(
                                   contact['value'] as String,
                                   style: GoogleFonts.roboto(
-                                    fontSize: 16,
+                                    fontSize: isMobile ? 14.0 : 16.0,
                                     fontWeight: FontWeight.w500,
                                     color: Colors.blue.shade800,
                                   ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ),
@@ -535,7 +677,7 @@ class CVHomePage extends StatelessWidget {
                             Icon(
                               Icons.arrow_forward,
                               color: Colors.blue.shade400,
-                              size: 20,
+                              size: isMobile ? 18.0 : 20.0,
                             ),
                         ],
                       ),
@@ -551,16 +693,22 @@ class CVHomePage extends StatelessWidget {
   }
 
   Widget _buildFooter(BuildContext context) {
+    final isMobile = Breakpoints.isMobile(context);
+    
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+      padding: EdgeInsets.symmetric(
+        vertical: isMobile ? 20.0 : 30.0,
+        horizontal: isMobile ? 16.0 : 20.0,
+      ),
       color: Colors.grey[800],
       child: Center(
         child: Text(
           '© ${DateTime.now().year} Your Name. All rights reserved.',
           style: GoogleFonts.roboto(
-            fontSize: 14,
+            fontSize: isMobile ? 12.0 : 14.0,
             color: Colors.white70,
           ),
+          textAlign: TextAlign.center,
         ),
       ),
     );
