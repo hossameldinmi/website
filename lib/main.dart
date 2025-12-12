@@ -47,9 +47,11 @@ class Breakpoints {
     if (isMobile(context)) {
       return screenWidth - (padding * 2);
     } else if (isTablet(context)) {
-      // Ensure minimum width of 280px for tablet cards
-      final calculatedWidth = (screenWidth - (padding * 2) - spacing) / 2;
-      return calculatedWidth > 280 ? calculatedWidth : 280;
+      // Calculate width for 2 columns
+      final availableWidth = screenWidth - (padding * 2) - spacing;
+      final halfWidth = availableWidth / 2;
+      // Use full width if half width would be too small
+      return halfWidth < 280 ? availableWidth : halfWidth;
     } else {
       return 350.0;
     }
@@ -237,6 +239,7 @@ class CVHomePage extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                             color: Colors.blue.shade800,
                           ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                         SizedBox(height: isMobile ? 12 : 15),
                         Wrap(
@@ -490,6 +493,7 @@ class CVHomePage extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                   color: Colors.blue.shade800,
                                 ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
