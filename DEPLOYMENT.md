@@ -41,6 +41,12 @@ To deploy your site at the root domain (`https://hossameldinmi.github.io/`), fol
 
 After renaming on GitHub, update your local repository:
 
+**Option 1: Use the helper script (Recommended)**
+```bash
+./update-after-rename.sh
+```
+
+**Option 2: Manual update**
 ```bash
 # Update the remote URL
 git remote set-url origin https://github.com/hossameldinmi/hossameldinmi.github.io.git

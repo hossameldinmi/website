@@ -23,10 +23,11 @@ GitHub Pages has two types of sites:
 3. Scroll to **Repository name** section
 4. Change the name from `website` to `hossameldinmi.github.io`
 5. Click **Rename**
+6. Run `./update-after-rename.sh` to update your local repository
 
 After renaming, your site will automatically deploy to `https://hossameldinmi.github.io/` instead of `https://hossameldinmi.github.io/website/`.
 
-> **Note**: The current configuration (`--base-href "/"`) is already set correctly for root domain deployment.
+> **Note**: The current configuration (`--base-href "/"`) is already set correctly for root domain deployment. No code changes are needed - only the repository rename!
 
 ## 🚀 Deployment to GitHub Pages
 
