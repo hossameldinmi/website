@@ -1,8 +1,13 @@
+import 'package:cv_website/src/models/skill_section.dart';
+import 'package:cv_website/src/models/experience.dart';
+import 'package:cv_website/src/models/project.dart';
+import 'package:cv_website/src/models/media.dart';
+import 'package:media_source/media_source.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'resume_data.dart';
+import 'src/data/resume_data.dart';
 
 void main() {
   runApp(const CVWebsite());
@@ -297,7 +302,7 @@ class CVHomePage extends StatelessWidget {
                     titleFontSize: _getResponsiveFontSize(context, 22),
                     textFontSize: _getResponsiveFontSize(context, 16),
                   );
-                }).toList(),
+                }),
               ],
             ),
           ),
@@ -357,7 +362,13 @@ class CVHomePage extends StatelessWidget {
                           project: project,
                           titleFontSize: _getResponsiveFontSize(context, 20),
                           descFontSize: _getResponsiveFontSize(context, 15),
-                          onTap: () => _launchURL(project.url),
+                          onTap: () {
+                            final link = project.media
+                                .firstWhere((m) => m.type == MediaType.link, orElse: () => project.media.first);
+                            if (link.media is UrlMedia) {
+                              _launchURL((link.media as UrlMedia).uri.toString());
+                            }
+                          },
                         );
                       }).toList(),
                     );
@@ -425,12 +436,22 @@ class CVHomePage extends StatelessWidget {
                           project: Project(
                             title: blog.title,
                             description: blog.description,
-                            url: blog.url,
-                            technologies: blog.skills, // Mapping skills to technologies for display
+                            media: [
+                              Media(
+                                media: blog.url,
+                                title: blog.title,
+                                type: MediaType.link,
+                              )
+                            ],
+                            skills: blog.skills, // Mapping skills to technologies for display
                           ),
                           titleFontSize: _getResponsiveFontSize(context, 20),
                           descFontSize: _getResponsiveFontSize(context, 15),
-                          onTap: () => _launchURL(blog.url),
+                          onTap: () {
+                            if (blog.url is UrlMedia) {
+                              _launchURL((blog.url as UrlMedia).uri.toString());
+                            }
+                          },
                         );
                       }).toList(),
                     );
@@ -686,7 +707,7 @@ class _AnimatedSkillCardState extends State<AnimatedSkillCard> {
                   ]
                 : [],
           ),
-          transform: Matrix4.identity()..translate(0.0, _isHovered ? -4.0 : 0.0),
+          transform: Matrix4.translationValues(0.0, _isHovered ? -4.0 : 0.0, 0.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -722,7 +743,7 @@ class _AnimatedSkillCardState extends State<AnimatedSkillCard> {
 
 class AnimatedExperienceCard extends StatefulWidget {
   final Duration delay;
-  final Position experience;
+  final Experience experience;
   final bool isMobile;
   final double titleFontSize;
   final double textFontSize;
@@ -765,7 +786,7 @@ class _AnimatedExperienceCardState extends State<AnimatedExperienceCard> {
               ),
             ],
           ),
-          transform: Matrix4.identity()..translate(0.0, _isHovered ? -2.0 : 0.0),
+          transform: Matrix4.translationValues(0.0, _isHovered ? -2.0 : 0.0, 0.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -805,7 +826,7 @@ class _AnimatedExperienceCardState extends State<AnimatedExperienceCard> {
                           ),
                         ),
                         Text(
-                          widget.experience.dateRange.toString(),
+                          widget.experience.dateRange.forResume,
                           style: GoogleFonts.roboto(
                             fontSize: widget.textFontSize,
                             color: Colors.grey[600],
@@ -892,7 +913,7 @@ class _AnimatedProjectCardState extends State<AnimatedProjectCard> {
                     ]
                   : [],
             ),
-            transform: Matrix4.identity()..translate(0.0, _isHovered ? -4.0 : 0.0),
+            transform: Matrix4.translationValues(0.0, _isHovered ? -4.0 : 0.0, 0.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -938,7 +959,7 @@ class _AnimatedProjectCardState extends State<AnimatedProjectCard> {
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
-                  children: widget.project.technologies.map((tech) {
+                  children: widget.project.skills.map((s) {
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
@@ -946,7 +967,7 @@ class _AnimatedProjectCardState extends State<AnimatedProjectCard> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        tech,
+                        s.name,
                         style: GoogleFonts.roboto(
                           fontSize: 13,
                           color: Colors.blue.shade900,
@@ -1018,7 +1039,7 @@ class _AnimatedContactCardState extends State<AnimatedContactCard> {
                 ),
               ],
             ),
-            transform: Matrix4.identity()..translate(0.0, _isHovered ? -2.0 : 0.0),
+            transform: Matrix4.translationValues(0.0, _isHovered ? -2.0 : 0.0, 0.0),
             child: Row(
               children: [
                 Container(
