@@ -29,3 +29,7 @@ doc/api/
 .flutter-plugins-dependencies
 .idea/
 .DS_Store
+
+# FVM Version Cache
+.fvm/
+.fvmrc
