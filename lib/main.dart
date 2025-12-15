@@ -1,5 +1,5 @@
 import 'package:cv_website/src/models/skill_section.dart';
-import 'package:cv_website/src/models/experience.dart';
+import 'package:cv_website/src/models/company.dart';
 import 'package:cv_website/src/models/project.dart';
 import 'package:cv_website/src/models/media.dart';
 import 'package:media_source/media_source.dart';
@@ -268,7 +268,7 @@ class CVHomePage extends StatelessWidget {
   }
 
   Widget _buildExperienceSection(BuildContext context) {
-    final experiences = ResumeData.profile.experience;
+    final companies = ResumeData.profile.experience;
 
     final isMobile = _isMobile(context);
 
@@ -291,13 +291,13 @@ class CVHomePage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 30),
-                ...experiences.asMap().entries.map((entry) {
+                ...companies.asMap().entries.map((entry) {
                   final index = entry.key;
-                  final exp = entry.value;
+                  final company = entry.value;
 
-                  return AnimatedExperienceCard(
+                  return AnimatedCompanyExperienceCard(
                     delay: Duration(milliseconds: 500 + (index * 100)),
-                    experience: exp,
+                    company: company,
                     isMobile: isMobile,
                     titleFontSize: _getResponsiveFontSize(context, 22),
                     textFontSize: _getResponsiveFontSize(context, 16),
@@ -741,31 +741,38 @@ class _AnimatedSkillCardState extends State<AnimatedSkillCard> {
   }
 }
 
-class AnimatedExperienceCard extends StatefulWidget {
+class AnimatedCompanyExperienceCard extends StatefulWidget {
   final Duration delay;
-  final Experience experience;
+  final Company company;
   final bool isMobile;
   final double titleFontSize;
   final double textFontSize;
 
-  const AnimatedExperienceCard({
+  const AnimatedCompanyExperienceCard({
     super.key,
     required this.delay,
-    required this.experience,
+    required this.company,
     required this.isMobile,
     required this.titleFontSize,
     required this.textFontSize,
   });
 
   @override
-  State<AnimatedExperienceCard> createState() => _AnimatedExperienceCardState();
+  State<AnimatedCompanyExperienceCard> createState() => _AnimatedCompanyExperienceCardState();
 }
 
-class _AnimatedExperienceCardState extends State<AnimatedExperienceCard> {
+class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienceCard> {
   bool _isHovered = false;
 
   @override
   Widget build(BuildContext context) {
+    // If company has no experiences, we might still want to show it or hide it.
+    // Assuming company always has at least one experience or we show empty card.
+
+    final companyName = widget.company.name;
+    final companyLogo = widget.company.logo;
+    final experiences = widget.company.experiences;
+
     return FadeInUpAnimation(
       delay: widget.delay,
       child: MouseRegion(
@@ -790,68 +797,164 @@ class _AnimatedExperienceCardState extends State<AnimatedExperienceCard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              widget.isMobile
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.experience.title,
-                          style: GoogleFonts.roboto(
-                            fontSize: widget.titleFontSize,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue.shade800,
+              // Company Header
+              Row(
+                children: [
+                  if (companyLogo != null)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 12.0),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: SizedBox(
+                          width: 48,
+                          height: 48,
+                          child: companyLogo.fold(
+                            network: (n) => Image.network(n.uri.toString()),
+                            asset: (a) => Image.asset(a.assetPath),
+                            orElse: () => const SizedBox(),
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          widget.experience.dateRange.toString(),
-                          style: GoogleFonts.roboto(
-                            fontSize: widget.textFontSize,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            widget.experience.title,
-                            style: GoogleFonts.roboto(
-                              fontSize: widget.titleFontSize,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue.shade800,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          widget.experience.dateRange.forResume,
-                          style: GoogleFonts.roboto(
-                            fontSize: widget.textFontSize,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-              const SizedBox(height: 8),
-              Text(
-                widget.experience.companyName,
-                style: GoogleFonts.roboto(
-                  fontSize: widget.textFontSize + 2,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey[700],
-                ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        companyName,
+                        style: GoogleFonts.roboto(
+                          fontSize: widget.titleFontSize,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue.shade900,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${widget.company.totalDuration} · ${widget.company.dateRange.forResume}',
+                        style: GoogleFonts.roboto(
+                          fontSize: widget.textFontSize * 0.9,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-              Text(
-                widget.experience.description,
-                style: GoogleFonts.roboto(
-                  fontSize: widget.textFontSize,
-                  height: 1.5,
-                  color: Colors.grey[600],
-                ),
-              ),
+              const SizedBox(height: 24),
+              // Timeline logic
+              ...experiences.asMap().entries.map((entry) {
+                final index = entry.key;
+                final exp = entry.value;
+                final isLast = index == experiences.length - 1;
+
+                return IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Timeline Line and Dot
+                      SizedBox(
+                        width: 40,
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.blue.shade600,
+                                border: Border.all(color: Colors.blue.shade100, width: 2),
+                              ),
+                            ),
+                            if (!isLast)
+                              Expanded(
+                                child: Container(
+                                  width: 2,
+                                  color: Colors.blue.shade200,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      // Role Details
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.only(bottom: isLast ? 0 : 32.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              widget.isMobile
+                                  ? Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          exp.title,
+                                          style: GoogleFonts.roboto(
+                                            fontSize: widget.titleFontSize * 0.9,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blue.shade800,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          exp.dateRange.forResume,
+                                          style: GoogleFonts.roboto(
+                                            fontSize: widget.textFontSize * 0.9,
+                                            color: Colors.grey[600],
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            exp.title,
+                                            style: GoogleFonts.roboto(
+                                              fontSize: widget.titleFontSize * 0.9,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.blue.shade800,
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          exp.dateRange.forResume,
+                                          style: GoogleFonts.roboto(
+                                            fontSize: widget.textFontSize * 0.9,
+                                            color: Colors.grey[600],
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${exp.location} · ${exp.employmentType}',
+                                style: GoogleFonts.roboto(
+                                  fontSize: widget.textFontSize * 0.85,
+                                  color: Colors.grey[500],
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                exp.description,
+                                style: GoogleFonts.roboto(
+                                  fontSize: widget.textFontSize,
+                                  height: 1.5,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
             ],
           ),
         ),

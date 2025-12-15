@@ -3,7 +3,7 @@ import 'package:cv_website/src/models/contact.dart';
 import 'package:cv_website/src/models/education.dart';
 import 'package:cv_website/src/models/language.dart';
 import 'package:cv_website/src/models/license_and_certification.dart';
-import 'package:cv_website/src/models/experience.dart';
+import 'package:cv_website/src/models/company.dart';
 import 'package:cv_website/src/models/project.dart';
 import 'package:cv_website/src/models/skill_section.dart';
 import 'package:media_source/media_source.dart';
@@ -15,7 +15,7 @@ class LinkedInProfile {
   final String about;
   final MediaSource<ImageType> profilePicture;
   final String location;
-  final List<Experience> experience;
+  final List<Company> experience;
   final List<Education> education;
   final List<SkillSection> skills;
   final List<Project> projects;
