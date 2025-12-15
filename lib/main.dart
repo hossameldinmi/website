@@ -1,3 +1,4 @@
+import 'dart:math' show cos, sin;
 import 'package:cv_website/src/models/skill_section.dart';
 import 'package:cv_website/src/models/company.dart';
 import 'package:cv_website/src/models/project.dart';
@@ -21,9 +22,19 @@ class CVWebsite extends StatelessWidget {
     return MaterialApp(
       title: 'Hossam Eldin Mahmoud - Senior Mobile Software Engineer',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        textTheme: GoogleFonts.robotoTextTheme(),
+      theme: ThemeData.dark().copyWith(
+        primaryColor: Colors.tealAccent,
+        scaffoldBackgroundColor: const Color(0xFF0A192F), // Deep Navy
+        cardColor: const Color(0xFF112240), // Lighter Navy
+        textTheme: GoogleFonts.robotoTextTheme(ThemeData.dark().textTheme).apply(
+          bodyColor: const Color(0xFF8892B0),
+          displayColor: const Color(0xFFCCD6F6),
+        ),
+        colorScheme: const ColorScheme.dark(
+          primary: Color(0xFF64FFDA), // Teal
+          secondary: Color(0xFF64FFDA),
+          surface: Color(0xFF112240),
+        ),
         useMaterial3: true,
       ),
       home: const SelectionArea(child: CVHomePage()),
@@ -45,6 +56,15 @@ class CVHomePage extends StatelessWidget {
     return width >= 600 && width < 1024;
   }
 
+  // Get responsive max width for content
+  double _getMaxContentWidth(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width < 600) return width;
+    if (width < 1024) return 900;
+    if (width < 1440) return 1000;
+    return 1200;
+  }
+
   // Get responsive padding
   EdgeInsets _getResponsivePadding(BuildContext context) {
     if (_isMobile(context)) {
@@ -52,7 +72,7 @@ class CVHomePage extends StatelessWidget {
     } else if (_isTablet(context)) {
       return const EdgeInsets.all(30);
     }
-    return const EdgeInsets.all(40);
+    return const EdgeInsets.all(50); // Increased padding for desktop
   }
 
   // Get responsive font size
@@ -67,8 +87,68 @@ class CVHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = _isMobile(context);
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: const Color(0xFF0A192F),
+      appBar: isMobile
+          ? AppBar(
+              backgroundColor: const Color(0xFF0A192F),
+              elevation: 0,
+              iconTheme: const IconThemeData(color: Color(0xFF64FFDA)),
+            )
+          : PreferredSize(
+              preferredSize: const Size.fromHeight(80),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
+                color: const Color(0xFF0A192F).withOpacity(0.9),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '<Hossam />',
+                      style: GoogleFonts.firaCode(
+                        color: const Color(0xFF64FFDA),
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        _NavBarItem('About', () {}), // TODO: Implement scroll
+                        _NavBarItem('Experience', () {}),
+                        _NavBarItem('Work', () {}),
+                        _NavBarItem('Contact', () {}),
+                        const SizedBox(width: 20),
+                        OutlinedButton(
+                          onPressed: () {}, // TODO: Download Resume
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Color(0xFF64FFDA)),
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                          ),
+                          child: Text(
+                            'Resume',
+                            style: GoogleFonts.firaCode(
+                              color: const Color(0xFF64FFDA),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+      drawer: isMobile
+          ? Drawer(
+              backgroundColor: const Color(0xFF112240),
+              child: ListView(
+                children: [
+                  // Drawer Items
+                ],
+              ),
+            )
+          : null,
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -77,7 +157,7 @@ class CVHomePage extends StatelessWidget {
             _buildSkillsSection(context),
             _buildExperienceSection(context),
             _buildProjectsSection(context),
-            _buildProjectsSection(context),
+            // _buildProjectsSection(context), // Removing duplicate
             _buildBlogSection(context),
             _buildContactsSection(context),
             _buildFooter(context),
@@ -87,116 +167,546 @@ class CVHomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
-    final isMobile = _isMobile(context);
-    final isTablet = _isTablet(context);
-
-    return TweenAnimationBuilder<double>(
-      duration: const Duration(milliseconds: 800),
-      tween: Tween(begin: 0.0, end: 1.0),
-      builder: (context, value, child) {
-        return Opacity(
-          opacity: value,
-          child: Transform.translate(
-            offset: Offset(0, 20 * (1 - value)),
-            child: child,
-          ),
-        );
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          vertical: isMobile ? 40 : (isTablet ? 50 : 60),
-          horizontal: 20,
-        ),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.blue.shade800, Colors.blue.shade600],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Center(
-          child: Column(
-            children: [
-              TweenAnimationBuilder<double>(
-                duration: const Duration(milliseconds: 600),
-                tween: Tween(begin: 0.0, end: 1.0),
-                builder: (context, value, child) {
-                  return Transform.scale(
-                    scale: value,
-                    child: child,
-                  );
-                },
-                child: CircleAvatar(
-                  radius: isMobile ? 40 : (isTablet ? 50 : 60),
-                  backgroundColor: Colors.white,
-                  backgroundImage: const AssetImage('assets/photo.jpg'),
-                ),
-              ),
-              const SizedBox(height: 20),
-              AnimatedTextKit(
-                animatedTexts: [
-                  TypewriterAnimatedText(
-                    ResumeData.profile.name,
-                    textStyle: GoogleFonts.roboto(
-                      fontSize: _getResponsiveFontSize(context, 48),
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                    speed: const Duration(milliseconds: 100),
-                  ),
-                ],
-                totalRepeatCount: 1,
-              ),
-              const SizedBox(height: 10),
-              FadeInUpAnimation(
-                delay: const Duration(milliseconds: 1000),
-                child: Text(
-                  ResumeData.profile.title,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.roboto(
-                    fontSize: _getResponsiveFontSize(context, 24),
-                    color: Colors.white70,
-                  ),
-                ),
-              ),
-            ],
+  Widget _NavBarItem(String title, VoidCallback onTap) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      child: TextButton(
+        onPressed: onTap,
+        child: Text(
+          title,
+          style: GoogleFonts.firaCode(
+            color: const Color(0xFFCCD6F6),
+            fontSize: 14,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildSummarySection(BuildContext context) {
-    return FadeInUpAnimation(
-      delay: const Duration(milliseconds: 200),
-      child: Container(
-        padding: _getResponsivePadding(context),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Summary',
-                  style: GoogleFonts.roboto(
-                    fontSize: _getResponsiveFontSize(context, 32),
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue.shade800,
+  Widget _buildHeader(BuildContext context) {
+    final isMobile = _isMobile(context);
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return Container(
+      height: isMobile ? screenHeight * 0.85 : screenHeight * 0.95,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF0A192F), Color(0xFF1A2744)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Stack(
+        children: [
+          // Animated background particles
+          ...List.generate(20, (index) => _buildFloatingParticle(index)),
+
+          // Main content
+          Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 60),
+              child: isMobile ? _buildMobileHeroContent(context) : _buildDesktopHeroContent(context, screenWidth),
+            ),
+          ),
+
+          // Scroll indicator
+          if (!isMobile)
+            Positioned(
+              bottom: 30,
+              left: 0,
+              right: 0,
+              child: FadeInUpAnimation(
+                delay: const Duration(milliseconds: 1800),
+                child: _buildScrollIndicator(),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileHeroContent(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // Profile image with animation
+        FadeInUpAnimation(
+          delay: const Duration(milliseconds: 200),
+          child: _buildAnimatedProfileImage(
+            MediaQuery.of(context).size.width * 0.35,
+          ),
+        ),
+        const SizedBox(height: 40),
+
+        // Greeting text
+        FadeInUpAnimation(
+          delay: const Duration(milliseconds: 400),
+          child: Text(
+            'Hello, I\'m',
+            style: GoogleFonts.roboto(
+              fontSize: _getResponsiveFontSize(context, 24),
+              color: const Color(0xFF64FFDA),
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+
+        // Name with animation
+        FadeInUpAnimation(
+          delay: const Duration(milliseconds: 600),
+          child: Text(
+            ResumeData.profile.name,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.roboto(
+              fontSize: _getResponsiveFontSize(context, 40),
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              height: 1.2,
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // Title with typewriter effect
+        FadeInUpAnimation(
+          delay: const Duration(milliseconds: 800),
+          child: _buildAnimatedTitle(context, 24),
+        ),
+        const SizedBox(height: 30),
+
+        // Brief intro
+        FadeInUpAnimation(
+          delay: const Duration(milliseconds: 1000),
+          child: Text(
+            'Specializing in the design and development of highly scalable applications with 4+ years of experience.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.roboto(
+              fontSize: _getResponsiveFontSize(context, 16),
+              color: const Color(0xFF8892B0),
+              height: 1.6,
+            ),
+          ),
+        ),
+        const SizedBox(height: 30),
+
+        // Social icons
+        FadeInUpAnimation(
+          delay: const Duration(milliseconds: 1200),
+          child: _buildSocialIcons(context),
+        ),
+        const SizedBox(height: 40),
+
+        // CTA Buttons
+        FadeInUpAnimation(
+          delay: const Duration(milliseconds: 1400),
+          child: Wrap(
+            spacing: 20,
+            runSpacing: 20,
+            alignment: WrapAlignment.center,
+            children: [
+              _buildCTAButton(
+                'View CV',
+                () {
+                  // TODO: Download CV
+                },
+                isPrimary: true,
+              ),
+              _buildCTAButton(
+                'View Projects',
+                () {
+                  // TODO: Scroll to projects
+                },
+                isPrimary: false,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFloatingParticle(int index) {
+    final random = index * 17 % 100;
+    return Positioned(
+      top: (random % 30) * 10.0,
+      left: ((random * 7) % 90) * 10.0,
+      child: TweenAnimationBuilder<double>(
+        duration: Duration(milliseconds: 2000 + (random % 10) * 200),
+        tween: Tween(begin: 0.0, end: 1.0),
+        builder: (context, value, child) {
+          return Transform.translate(
+            offset: Offset(
+              20 * (value - 0.5),
+              30 * (value - 0.5),
+            ),
+            child: Opacity(
+              opacity: 0.1 + (0.2 * value),
+              child: Container(
+                width: 4 + (random % 6).toDouble(),
+                height: 4 + (random % 6).toDouble(),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF64FFDA),
+                ),
+              ),
+            ),
+          );
+        },
+        onEnd: () {
+          // Loop animation
+        },
+      ),
+    );
+  }
+
+  Widget _buildCTAButton(String text, VoidCallback onPressed, {required bool isPrimary}) {
+    return Builder(
+      builder: (context) {
+        final isMobile = _isMobile(context);
+        return MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: InkWell(
+            onTap: onPressed,
+            borderRadius: BorderRadius.circular(50),
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 24 : 32,
+                vertical: isMobile ? 14 : 18,
+              ),
+              decoration: BoxDecoration(
+                gradient: isPrimary
+                    ? const LinearGradient(
+                        colors: [Color(0xFF5A9FFF), Color(0xFF64FFDA)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      )
+                    : null,
+                borderRadius: BorderRadius.circular(50),
+                border: isPrimary
+                    ? null
+                    : Border.all(
+                        color: const Color(0xFF8892B0),
+                        width: 2,
+                      ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    text,
+                    style: GoogleFonts.roboto(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: isPrimary ? Colors.white : const Color(0xFFCCD6F6),
+                    ),
+                  ),
+                  if (isPrimary) ...[
+                    const SizedBox(width: 8),
+                    const Icon(Icons.arrow_forward, size: 18, color: Colors.white),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSocialIcons(BuildContext context) {
+    final contact = ResumeData.profile.contact;
+    final socialItems = <Map<String, dynamic>>[];
+
+    if (contact.linkedinUrl != null) {
+      socialItems.add({'icon': Icons.business, 'url': contact.linkedinUrl!});
+    }
+    if (contact.githubUrl != null) {
+      socialItems.add({'icon': Icons.code, 'url': contact.githubUrl!});
+    }
+    if (contact.email != null) {
+      socialItems.add({'icon': Icons.email, 'url': 'mailto:${contact.email}'});
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: socialItems.map((item) {
+        return Padding(
+          padding: const EdgeInsets.only(right: 16),
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () => _launchURL(item['url'] as String),
+              child: Container(
+                padding: EdgeInsets.all(_isMobile(context) ? 12 : 14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1A2744),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0xFF233554),
+                    width: 1,
                   ),
                 ),
-                const SizedBox(height: 20),
-                Text(
+                child: Icon(
+                  item['icon'] as IconData,
+                  color: const Color(0xFF8892B0),
+                  size: _isMobile(context) ? 20 : 22,
+                ),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildScrollIndicator() {
+    return Column(
+      children: [
+        Text(
+          'Scroll Down',
+          style: GoogleFonts.firaCode(
+            fontSize: 12,
+            color: const Color(0xFF64FFDA),
+          ),
+        ),
+        const SizedBox(height: 10),
+        TweenAnimationBuilder<double>(
+          duration: const Duration(milliseconds: 1500),
+          tween: Tween(begin: 0.0, end: 20.0),
+          builder: (context, value, child) {
+            return Transform.translate(
+              offset: Offset(0, value),
+              child: Icon(
+                Icons.keyboard_arrow_down,
+                color: const Color(0xFF64FFDA),
+                size: 30,
+              ),
+            );
+          },
+          onEnd: () {
+            // Loop would go here
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDesktopHeroContent(BuildContext context, double screenWidth) {
+    final isLargeDesktop = screenWidth > 1440;
+    final imageSize = screenWidth < 1024 ? screenWidth * 0.25 : (screenWidth < 1440 ? screenWidth * 0.2 : 280.0);
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          flex: isLargeDesktop ? 6 : 5,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FadeInUpAnimation(
+                delay: const Duration(milliseconds: 200),
+                child: Text(
+                  'Hello, I\'m',
+                  style: GoogleFonts.roboto(
+                    fontSize: _getResponsiveFontSize(context, 28),
+                    color: const Color(0xFF64FFDA),
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              FadeInUpAnimation(
+                delay: const Duration(milliseconds: 400),
+                child: Text(
+                  ResumeData.profile.name,
+                  style: GoogleFonts.roboto(
+                    fontSize: _getResponsiveFontSize(context, 64),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              FadeInUpAnimation(
+                delay: const Duration(milliseconds: 600),
+                child: _buildAnimatedTitle(context, 32),
+              ),
+              const SizedBox(height: 40),
+              FadeInUpAnimation(
+                delay: const Duration(milliseconds: 800),
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 500),
+                  child: Text(
+                    'Specializing in the design and development of highly scalable applications with 4+ years of experience.',
+                    style: GoogleFonts.roboto(
+                      fontSize: _getResponsiveFontSize(context, 18),
+                      color: const Color(0xFF8892B0),
+                      height: 1.6,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 40),
+              FadeInUpAnimation(
+                delay: const Duration(milliseconds: 1000),
+                child: _buildSocialIcons(context),
+              ),
+              const SizedBox(height: 50),
+              FadeInUpAnimation(
+                delay: const Duration(milliseconds: 1200),
+                child: Row(
+                  children: [
+                    _buildCTAButton('View CV', () {}, isPrimary: true),
+                    const SizedBox(width: 20),
+                    _buildCTAButton('View Projects', () {}, isPrimary: false),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 80),
+        Expanded(
+          flex: isLargeDesktop ? 5 : 4,
+          child: FadeInUpAnimation(
+            delay: const Duration(milliseconds: 400),
+            child: _buildAnimatedProfileImage(imageSize),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAnimatedProfileImage(double size) {
+    return SizedBox(
+      width: size * 1.4,
+      height: size * 1.4,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          _AnimatedGradientBorder(size: size),
+          Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: const Color(0xFF0A192F),
+              border: Border.all(color: const Color(0xFF0A192F), width: 8),
+              image: const DecorationImage(
+                image: AssetImage('assets/photo.jpg'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          ..._buildFloatingTechIcons(size),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _buildFloatingTechIcons(double profileSize) {
+    final icons = [
+      {'icon': Icons.android, 'angle': 0.0, 'color': const Color(0xFF3DDC84)},
+      {'icon': Icons.flutter_dash, 'angle': 1.57, 'color': const Color(0xFF02569B)},
+      {'icon': Icons.phone_iphone, 'angle': 3.14, 'color': const Color(0xFF64FFDA)},
+      {'icon': Icons.apple, 'angle': 4.71, 'color': const Color(0xFF555555)},
+    ];
+
+    return icons.map((iconData) {
+      return _FloatingIcon(
+        icon: iconData['icon'] as IconData,
+        color: iconData['color'] as Color,
+        angle: iconData['angle'] as double,
+        radius: profileSize * 0.7,
+      );
+    }).toList();
+  }
+
+  Widget _buildAnimatedTitle(BuildContext context, double fontSize) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AnimatedTextKit(
+          animatedTexts: [
+            TypewriterAnimatedText(
+              ResumeData.profile.title.split(' ').first,
+              textStyle: GoogleFonts.roboto(
+                fontSize: fontSize,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF8B93FF),
+              ),
+              speed: const Duration(milliseconds: 100),
+            ),
+          ],
+          totalRepeatCount: 1,
+        ),
+        _BlinkingCursor(fontSize: fontSize),
+      ],
+    );
+  }
+
+  Widget _buildSummarySection(BuildContext context) {
+    final isMobile = _isMobile(context);
+
+    return Container(
+      padding: _getResponsivePadding(context).copyWith(
+        top: isMobile ? 60 : 100,
+        bottom: isMobile ? 60 : 100,
+      ),
+      color: const Color(0xFF0A192F),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: _getMaxContentWidth(context)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FadeInUpAnimation(
+                delay: const Duration(milliseconds: 200),
+                child: Row(
+                  children: [
+                    Text(
+                      '01.',
+                      style: GoogleFonts.firaCode(
+                        fontSize: _getResponsiveFontSize(context, 24),
+                        color: const Color(0xFF64FFDA),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      'About Me',
+                      style: GoogleFonts.roboto(
+                        fontSize: _getResponsiveFontSize(context, 32),
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFFCCD6F6),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        color: const Color(0xFF233554),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 40),
+              FadeInUpAnimation(
+                delay: const Duration(milliseconds: 400),
+                child: Text(
                   ResumeData.profile.about,
                   style: GoogleFonts.roboto(
                     fontSize: _getResponsiveFontSize(context, 18),
-                    height: 1.6,
-                    color: Colors.grey[700],
+                    height: 1.8,
+                    color: const Color(0xFF8892B0),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -216,51 +726,74 @@ class CVHomePage extends StatelessWidget {
       return 3;
     }
 
-    return FadeInUpAnimation(
-      delay: const Duration(milliseconds: 300),
-      child: Container(
-        padding: _getResponsivePadding(context),
-        color: Colors.white,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Skills',
-                  style: GoogleFonts.roboto(
-                    fontSize: _getResponsiveFontSize(context, 32),
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue.shade800,
-                  ),
+    return Container(
+      padding: _getResponsivePadding(context).copyWith(
+        top: isMobile ? 60 : 100,
+        bottom: isMobile ? 60 : 100,
+      ),
+      color: const Color(0xFF112240),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: _getMaxContentWidth(context)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FadeInUpAnimation(
+                delay: const Duration(milliseconds: 200),
+                child: Row(
+                  children: [
+                    Text(
+                      '02.',
+                      style: GoogleFonts.firaCode(
+                        fontSize: _getResponsiveFontSize(context, 24),
+                        color: const Color(0xFF64FFDA),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Skills',
+                      style: GoogleFonts.roboto(
+                        fontSize: _getResponsiveFontSize(context, 32),
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFFCCD6F6),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        color: const Color(0xFF233554),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 30),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final columnCount = getColumnCount();
-                    final spacing = isMobile ? 15.0 : 20.0;
-                    final itemWidth = (constraints.maxWidth - (spacing * (columnCount - 1))) / columnCount;
+              ),
+              const SizedBox(height: 40),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final columnCount = getColumnCount();
+                  final spacing = isMobile ? 15.0 : 20.0;
+                  final itemWidth = (constraints.maxWidth - (spacing * (columnCount - 1))) / columnCount;
 
-                    return Wrap(
-                      spacing: spacing,
-                      runSpacing: spacing,
-                      children: skills.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final skillGroup = entry.value;
+                  return Wrap(
+                    spacing: spacing,
+                    runSpacing: spacing,
+                    children: skills.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final skillGroup = entry.value;
 
-                        return AnimatedSkillCard(
-                          delay: Duration(milliseconds: 400 + (index * 100)),
-                          width: isMobile ? double.infinity : itemWidth,
-                          skillGroup: skillGroup,
-                          fontSize: _getResponsiveFontSize(context, 20),
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
-              ],
-            ),
+                      return AnimatedSkillCard(
+                        delay: Duration(milliseconds: 400 + (index * 100)),
+                        width: isMobile ? double.infinity : itemWidth,
+                        skillGroup: skillGroup,
+                        fontSize: _getResponsiveFontSize(context, 20),
+                      );
+                    }).toList(),
+                  );
+                },
+              ),
+            ],
           ),
         ),
       ),
@@ -272,39 +805,63 @@ class CVHomePage extends StatelessWidget {
 
     final isMobile = _isMobile(context);
 
-    return FadeInUpAnimation(
-      delay: const Duration(milliseconds: 400),
-      child: Container(
-        padding: _getResponsivePadding(context),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Work Experience',
-                  style: GoogleFonts.roboto(
-                    fontSize: _getResponsiveFontSize(context, 32),
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue.shade800,
-                  ),
+    return Container(
+      padding: _getResponsivePadding(context).copyWith(
+        top: isMobile ? 60 : 100,
+        bottom: isMobile ? 60 : 100,
+      ),
+      color: const Color(0xFF0A192F),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: _getMaxContentWidth(context)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FadeInUpAnimation(
+                delay: const Duration(milliseconds: 200),
+                child: Row(
+                  children: [
+                    Text(
+                      '03.',
+                      style: GoogleFonts.firaCode(
+                        fontSize: _getResponsiveFontSize(context, 24),
+                        color: const Color(0xFF64FFDA),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Work Experience',
+                      style: GoogleFonts.roboto(
+                        fontSize: _getResponsiveFontSize(context, 32),
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFFCCD6F6),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        color: const Color(0xFF233554),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 30),
-                ...companies.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final company = entry.value;
+              ),
+              const SizedBox(height: 40),
+              ...companies.asMap().entries.map((entry) {
+                final index = entry.key;
+                final company = entry.value;
 
-                  return AnimatedCompanyExperienceCard(
-                    delay: Duration(milliseconds: 500 + (index * 100)),
-                    company: company,
-                    isMobile: isMobile,
-                    titleFontSize: _getResponsiveFontSize(context, 22),
-                    textFontSize: _getResponsiveFontSize(context, 16),
-                  );
-                }),
-              ],
-            ),
+                return AnimatedCompanyExperienceCard(
+                  delay: Duration(milliseconds: 400 + (index * 100)),
+                  company: company,
+                  isMobile: isMobile,
+                  titleFontSize: _getResponsiveFontSize(context, 22),
+                  textFontSize: _getResponsiveFontSize(context, 16),
+                );
+              }),
+            ],
           ),
         ),
       ),
@@ -323,59 +880,82 @@ class CVHomePage extends StatelessWidget {
       return 3;
     }
 
-    return FadeInUpAnimation(
-      delay: const Duration(milliseconds: 500),
-      child: Container(
-        padding: _getResponsivePadding(context),
-        color: Colors.white,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Projects',
-                  style: GoogleFonts.roboto(
-                    fontSize: _getResponsiveFontSize(context, 32),
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue.shade800,
-                  ),
+    return Container(
+      padding: _getResponsivePadding(context).copyWith(
+        top: isMobile ? 60 : 100,
+        bottom: isMobile ? 60 : 100,
+      ),
+      color: const Color(0xFF112240),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: _getMaxContentWidth(context)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FadeInUpAnimation(
+                delay: const Duration(milliseconds: 200),
+                child: Row(
+                  children: [
+                    Text(
+                      '04.',
+                      style: GoogleFonts.firaCode(
+                        fontSize: _getResponsiveFontSize(context, 24),
+                        color: const Color(0xFF64FFDA),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Featured Projects',
+                      style: GoogleFonts.roboto(
+                        fontSize: _getResponsiveFontSize(context, 32),
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFFCCD6F6),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        color: const Color(0xFF233554),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 30),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final columnCount = getColumnCount();
-                    final spacing = isMobile ? 15.0 : 20.0;
-                    final itemWidth = (constraints.maxWidth - (spacing * (columnCount - 1))) / columnCount;
+              ),
+              const SizedBox(height: 40),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final columnCount = getColumnCount();
+                  final spacing = isMobile ? 15.0 : 20.0;
+                  final itemWidth = (constraints.maxWidth - (spacing * (columnCount - 1))) / columnCount;
 
-                    return Wrap(
-                      spacing: spacing,
-                      runSpacing: spacing,
-                      children: projects.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final project = entry.value;
+                  return Wrap(
+                    spacing: spacing,
+                    runSpacing: spacing,
+                    children: projects.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final project = entry.value;
 
-                        return AnimatedProjectCard(
-                          delay: Duration(milliseconds: 600 + (index * 100)),
-                          width: isMobile ? double.infinity : itemWidth,
-                          project: project,
-                          titleFontSize: _getResponsiveFontSize(context, 20),
-                          descFontSize: _getResponsiveFontSize(context, 15),
-                          onTap: () {
-                            final link = project.media
-                                .firstWhere((m) => m.type == MediaType.link, orElse: () => project.media.first);
-                            if (link.media is UrlMedia) {
-                              _launchURL((link.media as UrlMedia).uri.toString());
-                            }
-                          },
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
-              ],
-            ),
+                      return AnimatedProjectCard(
+                        delay: Duration(milliseconds: 400 + (index * 100)),
+                        width: isMobile ? double.infinity : itemWidth,
+                        project: project,
+                        titleFontSize: _getResponsiveFontSize(context, 20),
+                        descFontSize: _getResponsiveFontSize(context, 15),
+                        onTap: () {
+                          final link = project.media
+                              .firstWhere((m) => m.type == MediaType.link, orElse: () => project.media.first);
+                          if (link.media is UrlMedia) {
+                            _launchURL((link.media as UrlMedia).uri.toString());
+                          }
+                        },
+                      );
+                    }).toList(),
+                  );
+                },
+              ),
+            ],
           ),
         ),
       ),
@@ -395,70 +975,93 @@ class CVHomePage extends StatelessWidget {
       return 3;
     }
 
-    return FadeInUpAnimation(
-      delay: const Duration(milliseconds: 550),
-      child: Container(
-        padding: _getResponsivePadding(context),
-        color: Colors.grey[50],
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Blog',
-                  style: GoogleFonts.roboto(
-                    fontSize: _getResponsiveFontSize(context, 32),
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue.shade800,
-                  ),
+    return Container(
+      padding: _getResponsivePadding(context).copyWith(
+        top: isMobile ? 60 : 100,
+        bottom: isMobile ? 60 : 100,
+      ),
+      color: const Color(0xFF0A192F),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: _getMaxContentWidth(context)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FadeInUpAnimation(
+                delay: const Duration(milliseconds: 200),
+                child: Row(
+                  children: [
+                    Text(
+                      '05.',
+                      style: GoogleFonts.firaCode(
+                        fontSize: _getResponsiveFontSize(context, 24),
+                        color: const Color(0xFF64FFDA),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Blog & Articles',
+                      style: GoogleFonts.roboto(
+                        fontSize: _getResponsiveFontSize(context, 32),
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFFCCD6F6),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        color: const Color(0xFF233554),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 30),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final columnCount = getColumnCount();
-                    final spacing = isMobile ? 15.0 : 20.0;
-                    final itemWidth = (constraints.maxWidth - (spacing * (columnCount - 1))) / columnCount;
+              ),
+              const SizedBox(height: 40),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final columnCount = getColumnCount();
+                  final spacing = isMobile ? 15.0 : 20.0;
+                  final itemWidth = (constraints.maxWidth - (spacing * (columnCount - 1))) / columnCount;
 
-                    return Wrap(
-                      spacing: spacing,
-                      runSpacing: spacing,
-                      children: blogs.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final blog = entry.value;
+                  return Wrap(
+                    spacing: spacing,
+                    runSpacing: spacing,
+                    children: blogs.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final blog = entry.value;
 
-                        // Reusing AnimatedProjectCard as a template for Blog for now
-                        // In a real scenario, we'd create a specific AnimatedBlogCard
-                        return AnimatedProjectCard(
-                          delay: Duration(milliseconds: 600 + (index * 100)),
-                          width: isMobile ? double.infinity : itemWidth,
-                          project: Project(
-                            title: blog.title,
-                            description: blog.description,
-                            media: [
-                              Media(
-                                media: blog.url,
-                                title: blog.title,
-                                type: MediaType.link,
-                              )
-                            ],
-                            skills: blog.skills, // Mapping skills to technologies for display
-                          ),
-                          titleFontSize: _getResponsiveFontSize(context, 20),
-                          descFontSize: _getResponsiveFontSize(context, 15),
-                          onTap: () {
-                            if (blog.url is UrlMedia) {
-                              _launchURL((blog.url as UrlMedia).uri.toString());
-                            }
-                          },
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
-              ],
-            ),
+                      // Reusing AnimatedProjectCard as a template for Blog for now
+                      // In a real scenario, we'd create a specific AnimatedBlogCard
+                      return AnimatedProjectCard(
+                        delay: Duration(milliseconds: 400 + (index * 100)),
+                        width: isMobile ? double.infinity : itemWidth,
+                        project: Project(
+                          title: blog.title,
+                          description: blog.description,
+                          media: [
+                            Media(
+                              media: blog.url,
+                              title: blog.title,
+                              type: MediaType.link,
+                            )
+                          ],
+                          skills: blog.skills, // Mapping skills to technologies for display
+                        ),
+                        titleFontSize: _getResponsiveFontSize(context, 20),
+                        descFontSize: _getResponsiveFontSize(context, 15),
+                        onTap: () {
+                          if (blog.url is UrlMedia) {
+                            _launchURL((blog.url as UrlMedia).uri.toString());
+                          }
+                        },
+                      );
+                    }).toList(),
+                  );
+                },
+              ),
+            ],
           ),
         ),
       ),
@@ -467,103 +1070,86 @@ class CVHomePage extends StatelessWidget {
 
   Widget _buildContactsSection(BuildContext context) {
     final contact = ResumeData.profile.contact;
-
     final isMobile = _isMobile(context);
-    final isTablet = _isTablet(context);
 
-    // Create a list of mappable items for the grid
-    final contactItems = [
-      if (contact.email != null)
-        {
-          'icon': Icons.email,
-          'label': 'Email',
-          'value': contact.email!,
-          'url': 'mailto:${contact.email}',
-        },
-      if (contact.phone != null)
-        {
-          'icon': Icons.phone,
-          'label': 'Phone',
-          'value': contact.phone.toString(),
-          'url': 'tel:${contact.phone?.number.replaceAll(' ', '')}',
-        },
-      if (contact.linkedinUrl != null)
-        {
-          'icon': Icons.link,
-          'label': 'LinkedIn',
-          'value': 'linkedin.com/in/hossameldinmi', // Simplified for display
-          'url': contact.linkedinUrl!,
-        },
-      if (contact.githubUrl != null)
-        {
-          'icon': Icons.code,
-          'label': 'GitHub',
-          'value': 'github.com/hossameldinmi',
-          'url': contact.githubUrl!,
-        },
-      if (contact.websiteUrl != null)
-        {
-          'icon': Icons.web,
-          'label': 'Website',
-          'value': 'hossameldinmi.github.io',
-          'url': contact.websiteUrl!,
-        },
-    ];
-
-    int getColumnCount() {
-      if (isMobile) return 1;
-      if (isTablet) return 2;
-      return 3;
-    }
-
-    return FadeInUpAnimation(
-      delay: const Duration(milliseconds: 600),
-      child: Container(
-        padding: _getResponsivePadding(context),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Contact',
+    return Container(
+      padding: _getResponsivePadding(context).copyWith(
+        top: isMobile ? 60 : 100,
+        bottom: isMobile ? 60 : 100,
+      ),
+      color: const Color(0xFF112240),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              FadeInUpAnimation(
+                delay: const Duration(milliseconds: 200),
+                child: Column(
+                  children: [
+                    Text(
+                      '06. What\'s Next?',
+                      style: GoogleFonts.firaCode(
+                        fontSize: _getResponsiveFontSize(context, 18),
+                        color: const Color(0xFF64FFDA),
+                        fontWeight: FontWeight.w500,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Get In Touch',
+                      style: GoogleFonts.roboto(
+                        fontSize: _getResponsiveFontSize(context, 48),
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFFCCD6F6),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 30),
+              FadeInUpAnimation(
+                delay: const Duration(milliseconds: 400),
+                child: Text(
+                  'I\'m currently looking for new opportunities and collaborations. Whether you have a question or just want to say hi, I\'ll try my best to get back to you!',
                   style: GoogleFonts.roboto(
-                    fontSize: _getResponsiveFontSize(context, 32),
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue.shade800,
+                    fontSize: _getResponsiveFontSize(context, 18),
+                    height: 1.6,
+                    color: const Color(0xFF8892B0),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 50),
+              FadeInUpAnimation(
+                delay: const Duration(milliseconds: 600),
+                child: OutlinedButton(
+                  onPressed: () {
+                    if (contact.email != null) {
+                      _launchURL('mailto:${contact.email}');
+                    }
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFF64FFDA), width: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  child: Text(
+                    'Say Hello',
+                    style: GoogleFonts.firaCode(
+                      color: const Color(0xFF64FFDA),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 30),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final columnCount = getColumnCount();
-                    final spacing = isMobile ? 15.0 : 20.0;
-                    final itemWidth = (constraints.maxWidth - (spacing * (columnCount - 1))) / columnCount;
-
-                    return Wrap(
-                      spacing: spacing,
-                      runSpacing: spacing,
-                      children: contactItems.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final item = entry.value;
-
-                        return AnimatedContactCard(
-                          delay: Duration(milliseconds: 700 + (index * 100)),
-                          width: isMobile ? double.infinity : itemWidth,
-                          icon: item['icon'] as IconData,
-                          label: item['label'] as String,
-                          value: item['value'] as String,
-                          url: item['url'] as String,
-                          onTap: () => _launchURL(item['url'] as String),
-                          fontSize: _getResponsiveFontSize(context, 16),
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -573,18 +1159,59 @@ class CVHomePage extends StatelessWidget {
   Widget _buildFooter(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(
-        vertical: _isMobile(context) ? 20 : 30,
+        vertical: _isMobile(context) ? 40 : 50,
         horizontal: 20,
       ),
-      color: Colors.grey[800],
+      color: const Color(0xFF0A192F),
       child: Center(
-        child: Text(
-          '© ${DateTime.now().year} ${ResumeData.profile.name}. All rights reserved.',
-          style: GoogleFonts.roboto(
-            fontSize: _getResponsiveFontSize(context, 14),
-            color: Colors.white70,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (ResumeData.profile.contact.linkedinUrl != null)
+                  _buildFooterIcon(Icons.business, ResumeData.profile.contact.linkedinUrl!),
+                if (ResumeData.profile.contact.githubUrl != null)
+                  _buildFooterIcon(Icons.code, ResumeData.profile.contact.githubUrl!),
+                if (ResumeData.profile.contact.email != null)
+                  _buildFooterIcon(Icons.email, 'mailto:${ResumeData.profile.contact.email}'),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Built with Flutter',
+              style: GoogleFonts.firaCode(
+                fontSize: _getResponsiveFontSize(context, 14),
+                color: const Color(0xFF64FFDA),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              '© ${DateTime.now().year} ${ResumeData.profile.name}',
+              style: GoogleFonts.roboto(
+                fontSize: _getResponsiveFontSize(context, 14),
+                color: const Color(0xFF8892B0),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFooterIcon(IconData icon, String url) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: () => _launchURL(url),
+          child: Icon(
+            icon,
+            color: const Color(0xFF8892B0),
+            size: 24,
           ),
-          textAlign: TextAlign.center,
         ),
       ),
     );
@@ -692,22 +1319,25 @@ class _AnimatedSkillCardState extends State<AnimatedSkillCard> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           width: widget.width,
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.blue.shade50,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.blue.shade200),
+            color: const Color(0xFF0A192F),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: _isHovered ? const Color(0xFF64FFDA) : const Color(0xFF233554),
+              width: 1,
+            ),
             boxShadow: _isHovered
                 ? [
                     BoxShadow(
-                      color: Colors.blue.shade200,
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
+                      color: const Color(0xFF64FFDA).withOpacity(0.1),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
                     ),
                   ]
                 : [],
           ),
-          transform: Matrix4.translationValues(0.0, _isHovered ? -4.0 : 0.0, 0.0),
+          transform: Matrix4.translationValues(0.0, _isHovered ? -8.0 : 0.0, 0.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -716,19 +1346,26 @@ class _AnimatedSkillCardState extends State<AnimatedSkillCard> {
                 style: GoogleFonts.roboto(
                   fontSize: widget.fontSize,
                   fontWeight: FontWeight.bold,
-                  color: Colors.blue.shade800,
+                  color: const Color(0xFFCCD6F6),
                 ),
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 20),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 children: widget.skillGroup.skills.map((skill) {
-                  return Chip(
-                    label: Text(skill.name),
-                    backgroundColor: Colors.blue.shade100,
-                    labelStyle: GoogleFonts.roboto(
-                      color: Colors.blue.shade900,
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF233554),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      skill.name,
+                      style: GoogleFonts.firaCode(
+                        color: const Color(0xFF64FFDA),
+                        fontSize: 13,
+                      ),
                     ),
                   );
                 }).toList(),
@@ -777,19 +1414,25 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           margin: const EdgeInsets.only(bottom: 30),
-          padding: EdgeInsets.all(widget.isMobile ? 16 : 24),
+          padding: EdgeInsets.all(widget.isMobile ? 20 : 28),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: _isHovered ? Colors.blue.shade200 : Colors.grey.shade300,
-                blurRadius: _isHovered ? 15 : 10,
-                offset: Offset(0, _isHovered ? 6 : 4),
-              ),
-            ],
+            color: const Color(0xFF112240),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: _isHovered ? const Color(0xFF64FFDA) : const Color(0xFF233554),
+              width: 1,
+            ),
+            boxShadow: _isHovered
+                ? [
+                    BoxShadow(
+                      color: const Color(0xFF64FFDA).withOpacity(0.1),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ]
+                : [],
           ),
-          transform: Matrix4.translationValues(0.0, _isHovered ? -2.0 : 0.0, 0.0),
+          transform: Matrix4.translationValues(0.0, _isHovered ? -4.0 : 0.0, 0.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -801,38 +1444,77 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
                       padding: const EdgeInsets.only(right: 12.0),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: SizedBox(
+                        child: Container(
                           width: 48,
                           height: 48,
+                          color: Colors.white,
                           child: widget.company.logo!.fold(
-                            network: (n) => Image.network(n.uri.toString()),
-                            asset: (a) => Image.asset(a.assetPath),
+                            network: (n) => Image.network(
+                              n.uri.toString(),
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  width: 48,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF1A2744),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(
+                                    Icons.business,
+                                    color: Color(0xFF64FFDA),
+                                    size: 24,
+                                  ),
+                                );
+                              },
+                            ),
+                            asset: (a) => Image.asset(
+                              a.assetPath,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  width: 48,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF1A2744),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(
+                                    Icons.business,
+                                    color: Color(0xFF64FFDA),
+                                    size: 24,
+                                  ),
+                                );
+                              },
+                            ),
                             orElse: () => const SizedBox(),
                           ),
                         ),
                       ),
                     ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.company.name,
-                        style: GoogleFonts.roboto(
-                          fontSize: widget.titleFontSize,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue.shade900,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.company.name,
+                          style: GoogleFonts.roboto(
+                            fontSize: widget.titleFontSize,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFFCCD6F6),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${widget.company.dateRange.forResume} · ${widget.company.totalDuration}',
-                        style: GoogleFonts.roboto(
-                          fontSize: widget.textFontSize * 0.9,
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w500,
+                        const SizedBox(height: 4),
+                        Text(
+                          '${widget.company.dateRange.forResume} · ${widget.company.totalDuration}',
+                          style: GoogleFonts.roboto(
+                            fontSize: widget.textFontSize * 0.9,
+                            color: const Color(0xFF8892B0),
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -852,7 +1534,7 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
                       // Timeline Line and Dot
                       if (hasMultipleExperiences)
                         SizedBox(
-                          width: 40,
+                          width: widget.isMobile ? 32 : 40,
                           child: Column(
                             children: [
                               Container(
@@ -860,15 +1542,15 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
                                 height: 12,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: isFirst ? Colors.blue.shade600 : Colors.blue.shade200,
-                                  border: Border.all(color: Colors.blue.shade100, width: 2),
+                                  color: isFirst ? const Color(0xFF64FFDA) : const Color(0xFF233554),
+                                  border: Border.all(color: const Color(0xFF64FFDA), width: 2),
                                 ),
                               ),
                               if (!isLast)
                                 Expanded(
                                   child: Container(
                                     width: 2,
-                                    color: Colors.blue.shade200,
+                                    color: const Color(0xFF233554),
                                   ),
                                 ),
                             ],
@@ -891,7 +1573,7 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
                                           style: GoogleFonts.roboto(
                                             fontSize: widget.titleFontSize * 0.9,
                                             fontWeight: FontWeight.bold,
-                                            color: Colors.blue.shade800,
+                                            color: const Color(0xFF64FFDA),
                                           ),
                                         ),
                                         const SizedBox(height: 4),
@@ -899,7 +1581,7 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
                                           exp.dateRange.forResume,
                                           style: GoogleFonts.roboto(
                                             fontSize: widget.textFontSize * 0.9,
-                                            color: Colors.grey[600],
+                                            color: const Color(0xFF8892B0),
                                             fontWeight: FontWeight.w500,
                                           ),
                                         ),
@@ -914,7 +1596,7 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
                                             style: GoogleFonts.roboto(
                                               fontSize: widget.titleFontSize * 0.9,
                                               fontWeight: FontWeight.bold,
-                                              color: Colors.blue.shade800,
+                                              color: const Color(0xFF64FFDA),
                                             ),
                                           ),
                                         ),
@@ -922,7 +1604,7 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
                                           exp.dateRange.forResume,
                                           style: GoogleFonts.roboto(
                                             fontSize: widget.textFontSize * 0.9,
-                                            color: Colors.grey[600],
+                                            color: const Color(0xFF8892B0),
                                             fontWeight: FontWeight.w500,
                                           ),
                                         ),
@@ -933,7 +1615,7 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
                                 '${exp.location} · ${exp.employmentType}',
                                 style: GoogleFonts.roboto(
                                   fontSize: widget.textFontSize * 0.85,
-                                  color: Colors.grey[500],
+                                  color: const Color(0xFF8892B0),
                                   fontStyle: FontStyle.italic,
                                 ),
                               ),
@@ -942,8 +1624,8 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
                                 exp.description,
                                 style: GoogleFonts.roboto(
                                   fontSize: widget.textFontSize,
-                                  height: 1.5,
-                                  color: Colors.grey[600],
+                                  height: 1.6,
+                                  color: const Color(0xFF8892B0),
                                 ),
                               ),
                             ],
@@ -996,84 +1678,79 @@ class _AnimatedProjectCardState extends State<AnimatedProjectCard> {
         onExit: (_) => setState(() => _isHovered = false),
         child: InkWell(
           onTap: widget.onTap,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             width: widget.width,
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(28),
             decoration: BoxDecoration(
-              color: Colors.grey[50],
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade300),
+              color: const Color(0xFF0A192F),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: _isHovered ? const Color(0xFF64FFDA) : const Color(0xFF233554),
+                width: 1,
+              ),
               boxShadow: _isHovered
                   ? [
                       BoxShadow(
-                        color: Colors.blue.shade100,
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
+                        color: const Color(0xFF64FFDA).withOpacity(0.1),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
                       ),
                     ]
                   : [],
             ),
-            transform: Matrix4.translationValues(0.0, _isHovered ? -4.0 : 0.0, 0.0),
+            transform: Matrix4.translationValues(0.0, _isHovered ? -8.0 : 0.0, 0.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Icon(
                       Icons.folder_open,
-                      color: Colors.blue.shade600,
-                      size: 28,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        widget.project.title,
-                        style: GoogleFonts.roboto(
-                          fontSize: widget.titleFontSize,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue.shade800,
-                        ),
-                      ),
+                      color: const Color(0xFF64FFDA),
+                      size: 40,
                     ),
                     if (widget.onTap != null)
-                      Tooltip(
-                        message: 'Open on pub.dev',
-                        child: Icon(
-                          Icons.open_in_new,
-                          color: Colors.blue.shade400,
-                          size: 20,
-                        ),
+                      Icon(
+                        Icons.open_in_new,
+                        color: const Color(0xFF8892B0),
+                        size: 20,
                       ),
                   ],
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  widget.project.title,
+                  style: GoogleFonts.roboto(
+                    fontSize: widget.titleFontSize,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFFCCD6F6),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   widget.project.description,
                   style: GoogleFonts.roboto(
                     fontSize: widget.descFontSize,
-                    height: 1.5,
-                    color: Colors.grey[700],
+                    height: 1.6,
+                    color: const Color(0xFF8892B0),
                   ),
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 Wrap(
-                  spacing: 8,
+                  spacing: 12,
                   runSpacing: 8,
-                  children: widget.project.skills.map((s) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.blue.shade100,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        s.name,
-                        style: GoogleFonts.roboto(
-                          fontSize: 13,
-                          color: Colors.blue.shade900,
-                        ),
+                  children: widget.project.skills.take(5).map((s) {
+                    return Text(
+                      s.name,
+                      style: GoogleFonts.firaCode(
+                        fontSize: 13,
+                        color: const Color(0xFF8892B0),
                       ),
                     );
                   }).toList(),
@@ -1087,103 +1764,185 @@ class _AnimatedProjectCardState extends State<AnimatedProjectCard> {
   }
 }
 
-class AnimatedContactCard extends StatefulWidget {
-  final Duration delay;
-  final double width;
-  final IconData icon;
-  final String label;
-  final String value;
-  final String url;
-  final VoidCallback? onTap;
-  final double fontSize;
+// Animated Gradient Border for Profile Image
+class _AnimatedGradientBorder extends StatefulWidget {
+  final double size;
 
-  const AnimatedContactCard({
-    super.key,
-    required this.delay,
-    required this.width,
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.url,
-    this.onTap,
-    required this.fontSize,
-  });
+  const _AnimatedGradientBorder({required this.size});
 
   @override
-  State<AnimatedContactCard> createState() => _AnimatedContactCardState();
+  State<_AnimatedGradientBorder> createState() => _AnimatedGradientBorderState();
 }
 
-class _AnimatedContactCardState extends State<AnimatedContactCard> {
-  bool _isHovered = false;
+class _AnimatedGradientBorderState extends State<_AnimatedGradientBorder> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 3),
+      vsync: this,
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return FadeInUpAnimation(
-      delay: widget.delay,
-      child: MouseRegion(
-        onEnter: (_) => setState(() => _isHovered = true),
-        onExit: (_) => setState(() => _isHovered = false),
-        child: InkWell(
-          onTap: widget.onTap,
-          borderRadius: BorderRadius.circular(12),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            width: widget.width,
-            padding: const EdgeInsets.all(20),
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Transform.rotate(
+          angle: _controller.value * 6.28,
+          child: Container(
+            width: widget.size * 1.1,
+            height: widget.size * 1.1,
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
+              shape: BoxShape.circle,
+              gradient: SweepGradient(
+                colors: const [
+                  Color(0xFF64FFDA),
+                  Color(0xFF5A9FFF),
+                  Color(0xFF8B5CF6),
+                  Color(0xFF64FFDA),
+                ],
+                stops: const [0.0, 0.33, 0.66, 1.0],
+                transform: GradientRotation(_controller.value * 6.28),
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: _isHovered ? Colors.blue.shade200 : Colors.grey.shade300,
-                  blurRadius: _isHovered ? 12 : 8,
-                  offset: Offset(0, _isHovered ? 4 : 2),
-                ),
-              ],
-            ),
-            transform: Matrix4.translationValues(0.0, _isHovered ? -2.0 : 0.0, 0.0),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    widget.icon,
-                    color: Colors.blue.shade800,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 15),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.label,
-                        style: GoogleFonts.roboto(
-                          fontSize: widget.fontSize * 0.85,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        widget.value,
-                        style: GoogleFonts.roboto(
-                          fontSize: widget.fontSize,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.blue.shade800,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
+                  color: const Color(0xFF64FFDA).withOpacity(0.5),
+                  blurRadius: 40,
+                  spreadRadius: 5,
                 ),
               ],
             ),
           ),
+        );
+      },
+    );
+  }
+}
+
+// Floating Icon Widget
+class _FloatingIcon extends StatefulWidget {
+  final IconData icon;
+  final Color color;
+  final double angle;
+  final double radius;
+
+  const _FloatingIcon({
+    required this.icon,
+    required this.color,
+    required this.angle,
+    required this.radius,
+  });
+
+  @override
+  State<_FloatingIcon> createState() => _FloatingIconState();
+}
+
+class _FloatingIconState extends State<_FloatingIcon> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        final animatedAngle = widget.angle + (_controller.value * 0.2);
+        return Transform.translate(
+          offset: Offset(
+            widget.radius * cos(animatedAngle),
+            widget.radius * sin(animatedAngle),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1A2744),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: const Color(0xFF233554),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: widget.color.withOpacity(0.3),
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: Icon(
+              widget.icon,
+              color: widget.color,
+              size: 24,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// Blinking Cursor Widget
+class _BlinkingCursor extends StatefulWidget {
+  final double fontSize;
+
+  const _BlinkingCursor({required this.fontSize});
+
+  @override
+  State<_BlinkingCursor> createState() => _BlinkingCursorState();
+}
+
+class _BlinkingCursorState extends State<_BlinkingCursor> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _controller,
+      child: Text(
+        '_',
+        style: GoogleFonts.roboto(
+          fontSize: widget.fontSize,
+          fontWeight: FontWeight.w600,
+          color: const Color(0xFF64FFDA),
         ),
       ),
     );

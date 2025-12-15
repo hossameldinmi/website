@@ -15,6 +15,7 @@ class ResumeData {
     name: 'Hossam Eldin Mahmoud',
     title: 'Senior Mobile Software Engineer',
     subTitles: [
+      'I build exceptional mobile and web applications that solve real-world problems.',
       'Native-iOS',
       'Flutter Specialist',
       'Cross-Platform Mobile Developer',
@@ -37,6 +38,8 @@ class ResumeData {
       size: 484.86.kb,
     ),
     location: 'Egypt',
+    resume:
+        DocumentNetworkMedia.url('https://drive.google.com/file/d/1DxheH3eOao1tRIEwB1TWJQaDtm1SBOaj/view?usp=sharing'),
     contact: const Contact(
       email: 'hossameldinmi@gmail.com',
       linkedinUrl: 'https://linkedin.com/in/hossameldinmi',

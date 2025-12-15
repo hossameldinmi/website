@@ -23,6 +23,7 @@ class LinkedInProfile {
   final List<Language> languages;
   final Contact contact;
   final List<Article> blogs;
+  final MediaSource<DocumentType>? resume;
 
   const LinkedInProfile({
     required this.name,
@@ -39,5 +40,6 @@ class LinkedInProfile {
     required this.languages,
     required this.contact,
     required this.blogs,
+    this.resume,
   });
 }
