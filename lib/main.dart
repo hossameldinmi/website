@@ -16,15 +16,23 @@ void main() {
   runApp(const CVWebsite());
 }
 
-class CVWebsite extends StatelessWidget {
+class CVWebsite extends StatefulWidget {
   const CVWebsite({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: '${ResumeData.profile.name} - ${ResumeData.profile.title}',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
+  State<CVWebsite> createState() => _CVWebsiteState();
+}
+
+class _CVWebsiteState extends State<CVWebsite> {
+  ThemeMode _themeMode = ThemeMode.system;
+
+  void _toggleTheme() {
+    setState(() {
+      _themeMode = _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+    });
+  }
+
+  ThemeData get _darkTheme => ThemeData.dark().copyWith(
         primaryColor: Colors.tealAccent,
         scaffoldBackgroundColor: const Color(0xFF0A192F), // Deep Navy
         cardColor: const Color(0xFF112240), // Lighter Navy
@@ -38,14 +46,48 @@ class CVWebsite extends StatelessWidget {
           surface: Color(0xFF112240),
         ),
         useMaterial3: true,
+      );
+
+  ThemeData get _lightTheme => ThemeData.light().copyWith(
+        primaryColor: const Color(0xFF64FFDA),
+        scaffoldBackgroundColor: const Color(0xFFF5F7FA), // Light gray
+        cardColor: Colors.white,
+        textTheme: GoogleFonts.robotoTextTheme(ThemeData.light().textTheme).apply(
+          bodyColor: const Color(0xFF334155),
+          displayColor: const Color(0xFF0F172A),
+        ),
+        colorScheme: const ColorScheme.light(
+          primary: Color(0xFF0EA5E9), // Blue
+          secondary: Color(0xFF0EA5E9),
+          surface: Colors.white,
+        ),
+        useMaterial3: true,
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: '${ResumeData.profile.name} - ${ResumeData.profile.title}',
+      debugShowCheckedModeBanner: false,
+      theme: _lightTheme,
+      darkTheme: _darkTheme,
+      themeMode: _themeMode,
+      home: SelectionArea(
+        child: CVHomePage(onThemeToggle: _toggleTheme, currentThemeMode: _themeMode),
       ),
-      home: const SelectionArea(child: CVHomePage()),
     );
   }
 }
 
 class CVHomePage extends StatefulWidget {
-  const CVHomePage({super.key});
+  final VoidCallback onThemeToggle;
+  final ThemeMode currentThemeMode;
+
+  const CVHomePage({
+    super.key,
+    required this.onThemeToggle,
+    required this.currentThemeMode,
+  });
 
   @override
   State<CVHomePage> createState() => _CVHomePageState();
@@ -170,27 +212,28 @@ class _CVHomePageState extends State<CVHomePage> {
   @override
   Widget build(BuildContext context) {
     final isMobile = _isMobile(context);
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0A192F),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: isMobile
           ? AppBar(
-              backgroundColor: const Color(0xFF0A192F),
+              backgroundColor: theme.scaffoldBackgroundColor,
               elevation: 0,
-              iconTheme: const IconThemeData(color: Color(0xFF64FFDA)),
+              iconTheme: IconThemeData(color: theme.colorScheme.primary),
             )
           : PreferredSize(
               preferredSize: const Size.fromHeight(80),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
-                color: const Color(0xFF0A192F).withOpacity(0.9),
+                color: theme.scaffoldBackgroundColor.withOpacity(0.9),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       '<${ResumeData.profile.firstName}/>',
                       style: GoogleFonts.firaCode(
-                        color: const Color(0xFF64FFDA),
+                        color: theme.colorScheme.primary,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
@@ -202,7 +245,17 @@ class _CVHomePageState extends State<CVHomePage> {
                               () => _scrollToSection(section['key'] as GlobalKey),
                               _activeSection == section['title'],
                             )),
-                        // const SizedBox(width: 20),
+                        const SizedBox(width: 20),
+                        IconButton(
+                          onPressed: widget.onThemeToggle,
+                          icon: Icon(
+                            widget.currentThemeMode == ThemeMode.dark ? Icons.light_mode : Icons.dark_mode,
+                          ),
+                          color: theme.colorScheme.primary,
+                          tooltip: widget.currentThemeMode == ThemeMode.dark
+                              ? 'Switch to Light Mode'
+                              : 'Switch to Dark Mode',
+                        ),
                         // OutlinedButton(
                         //   onPressed: () {
                         //     _launchURL(
@@ -227,13 +280,13 @@ class _CVHomePageState extends State<CVHomePage> {
             ),
       drawer: isMobile
           ? Drawer(
-              backgroundColor: const Color(0xFF112240),
+              backgroundColor: theme.cardColor,
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
                   DrawerHeader(
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF0A192F),
+                    decoration: BoxDecoration(
+                      color: theme.scaffoldBackgroundColor,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -242,7 +295,7 @@ class _CVHomePageState extends State<CVHomePage> {
                         Text(
                           '<${ResumeData.profile.firstName}/>',
                           style: GoogleFonts.firaCode(
-                            color: const Color(0xFF64FFDA),
+                            color: theme.colorScheme.primary,
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                           ),
@@ -251,7 +304,7 @@ class _CVHomePageState extends State<CVHomePage> {
                         Text(
                           'Menu',
                           style: GoogleFonts.roboto(
-                            color: const Color(0xFF8892B0),
+                            color: theme.textTheme.bodyMedium?.color,
                             fontSize: 14,
                           ),
                         ),
@@ -261,24 +314,45 @@ class _CVHomePageState extends State<CVHomePage> {
                   ..._sections.map((section) => ListTile(
                         leading: Icon(
                           Icons.chevron_right,
-                          color: _activeSection == section['title'] ? const Color(0xFF64FFDA) : const Color(0xFF8892B0),
+                          color: _activeSection == section['title']
+                              ? theme.colorScheme.primary
+                              : theme.textTheme.bodyMedium?.color,
                         ),
                         title: Text(
                           section['title'] as String,
                           style: GoogleFonts.firaCode(
-                            color:
-                                _activeSection == section['title'] ? const Color(0xFF64FFDA) : const Color(0xFFCCD6F6),
+                            color: _activeSection == section['title']
+                                ? theme.colorScheme.primary
+                                : theme.textTheme.displayLarge?.color,
                             fontSize: 16,
                             fontWeight: _activeSection == section['title'] ? FontWeight.bold : FontWeight.normal,
                           ),
                         ),
                         selected: _activeSection == section['title'],
-                        selectedTileColor: const Color(0xFF0A192F),
+                        selectedTileColor: theme.scaffoldBackgroundColor,
                         onTap: () {
                           Navigator.pop(context);
                           _scrollToSection(section['key'] as GlobalKey);
                         },
                       )),
+                  const Divider(),
+                  ListTile(
+                    leading: Icon(
+                      widget.currentThemeMode == ThemeMode.dark ? Icons.light_mode : Icons.dark_mode,
+                      color: theme.colorScheme.primary,
+                    ),
+                    title: Text(
+                      widget.currentThemeMode == ThemeMode.dark ? 'Light Mode' : 'Dark Mode',
+                      style: GoogleFonts.firaCode(
+                        color: theme.textTheme.displayLarge?.color,
+                        fontSize: 16,
+                      ),
+                    ),
+                    onTap: () {
+                      widget.onThemeToggle();
+                      Navigator.pop(context);
+                    },
+                  ),
                 ],
               ),
             )
@@ -303,19 +377,24 @@ class _CVHomePageState extends State<CVHomePage> {
   }
 
   Widget _navBarItem(String title, VoidCallback onTap, bool isActive) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      child: TextButton(
-        onPressed: onTap,
-        child: Text(
-          title,
-          style: GoogleFonts.firaCode(
-            color: isActive ? const Color(0xFF64FFDA) : const Color(0xFFCCD6F6),
-            fontSize: 14,
-            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+    return Builder(
+      builder: (context) {
+        final theme = Theme.of(context);
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          child: TextButton(
+            onPressed: onTap,
+            child: Text(
+              title,
+              style: GoogleFonts.firaCode(
+                color: isActive ? theme.colorScheme.primary : theme.textTheme.displayLarge?.color,
+                fontSize: 14,
+                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -323,12 +402,16 @@ class _CVHomePageState extends State<CVHomePage> {
     final isMobile = _isMobile(context);
     final screenHeight = MediaQuery.sizeOf(context).height;
     final screenWidth = MediaQuery.sizeOf(context).width;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
       height: isMobile ? screenHeight * 0.85 : screenHeight * 0.95,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF0A192F), Color(0xFF1A2744)],
+          colors: isDark
+              ? [const Color(0xFF0A192F), const Color(0xFF1A2744)]
+              : [const Color(0xFFE0F2FE), const Color(0xFFF5F7FA)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -363,6 +446,7 @@ class _CVHomePageState extends State<CVHomePage> {
   }
 
   Widget _buildMobileHeroContent(BuildContext context) {
+    final theme = Theme.of(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -382,7 +466,7 @@ class _CVHomePageState extends State<CVHomePage> {
             'Hello, I\'m',
             style: GoogleFonts.roboto(
               fontSize: _getResponsiveFontSize(context, 24),
-              color: const Color(0xFF64FFDA),
+              color: theme.colorScheme.primary,
               fontWeight: FontWeight.w400,
             ),
           ),
@@ -398,7 +482,7 @@ class _CVHomePageState extends State<CVHomePage> {
             style: GoogleFonts.roboto(
               fontSize: _getResponsiveFontSize(context, 40),
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: theme.textTheme.displayLarge?.color,
               height: 1.2,
             ),
           ),
@@ -420,7 +504,7 @@ class _CVHomePageState extends State<CVHomePage> {
             textAlign: TextAlign.center,
             style: GoogleFonts.roboto(
               fontSize: _getResponsiveFontSize(context, 16),
-              color: const Color(0xFF8892B0),
+              color: theme.textTheme.bodyMedium?.color,
               height: 1.6,
             ),
           ),
@@ -475,35 +559,40 @@ class _CVHomePageState extends State<CVHomePage> {
 
   Widget _buildFloatingParticle(int index) {
     final random = index * 17 % 100;
-    return Positioned(
-      top: (random % 30) * 10.0,
-      left: ((random * 7) % 90) * 10.0,
-      child: TweenAnimationBuilder<double>(
-        duration: Duration(milliseconds: 2000 + (random % 10) * 200),
-        tween: Tween(begin: 0.0, end: 1.0),
-        builder: (context, value, child) {
-          return Transform.translate(
-            offset: Offset(
-              20 * (value - 0.5),
-              30 * (value - 0.5),
-            ),
-            child: Opacity(
-              opacity: 0.1 + (0.2 * value),
-              child: Container(
-                width: 4 + (random % 6).toDouble(),
-                height: 4 + (random % 6).toDouble(),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color(0xFF64FFDA),
+    return Builder(
+      builder: (context) {
+        final theme = Theme.of(context);
+        return Positioned(
+          top: (random % 30) * 10.0,
+          left: ((random * 7) % 90) * 10.0,
+          child: TweenAnimationBuilder<double>(
+            duration: Duration(milliseconds: 2000 + (random % 10) * 200),
+            tween: Tween(begin: 0.0, end: 1.0),
+            builder: (context, value, child) {
+              return Transform.translate(
+                offset: Offset(
+                  20 * (value - 0.5),
+                  30 * (value - 0.5),
                 ),
-              ),
-            ),
-          );
-        },
-        onEnd: () {
-          // Loop animation
-        },
-      ),
+                child: Opacity(
+                  opacity: 0.1 + (0.2 * value),
+                  child: Container(
+                    width: 4 + (random % 6).toDouble(),
+                    height: 4 + (random % 6).toDouble(),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                ),
+              );
+            },
+            onEnd: () {
+              // Loop animation
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -511,6 +600,8 @@ class _CVHomePageState extends State<CVHomePage> {
     return Builder(
       builder: (context) {
         final isMobile = _isMobile(context);
+        final theme = Theme.of(context);
+        final isDark = theme.brightness == Brightness.dark;
         return MouseRegion(
           cursor: SystemMouseCursors.click,
           child: InkWell(
@@ -523,8 +614,10 @@ class _CVHomePageState extends State<CVHomePage> {
               ),
               decoration: BoxDecoration(
                 gradient: isPrimary
-                    ? const LinearGradient(
-                        colors: [Color(0xFF5A9FFF), Color(0xFF64FFDA)],
+                    ? LinearGradient(
+                        colors: isDark
+                            ? [const Color(0xFF5A9FFF), const Color(0xFF64FFDA)]
+                            : [const Color(0xFF0EA5E9), const Color(0xFF06B6D4)],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       )
@@ -533,7 +626,7 @@ class _CVHomePageState extends State<CVHomePage> {
                 border: isPrimary
                     ? null
                     : Border.all(
-                        color: const Color(0xFF8892B0),
+                        color: theme.textTheme.bodyMedium?.color ?? Colors.grey,
                         width: 2,
                       ),
               ),
@@ -545,7 +638,7 @@ class _CVHomePageState extends State<CVHomePage> {
                     style: GoogleFonts.roboto(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: isPrimary ? Colors.white : const Color(0xFFCCD6F6),
+                      color: isPrimary ? Colors.white : theme.textTheme.displayLarge?.color,
                     ),
                   ),
                   if (isPrimary) ...[
@@ -563,6 +656,8 @@ class _CVHomePageState extends State<CVHomePage> {
 
   Widget _buildSocialIcons(BuildContext context) {
     final contact = ResumeData.profile.contact;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final socialItems = <Map<String, dynamic>>[];
 
     if (contact.linkedinUrl != null) {
@@ -587,16 +682,16 @@ class _CVHomePageState extends State<CVHomePage> {
               child: Container(
                 padding: EdgeInsets.all(_isMobile(context) ? 12 : 14),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1A2744),
+                  color: isDark ? const Color(0xFF1A2744) : Colors.white,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: const Color(0xFF233554),
+                    color: isDark ? const Color(0xFF233554) : const Color(0xFFE2E8F0),
                     width: 1,
                   ),
                 ),
                 child: Icon(
                   item['icon'] as IconData,
-                  color: const Color(0xFF8892B0),
+                  color: theme.textTheme.bodyMedium?.color,
                   size: _isMobile(context) ? 20 : 22,
                 ),
               ),
@@ -608,40 +703,46 @@ class _CVHomePageState extends State<CVHomePage> {
   }
 
   Widget _buildScrollIndicator() {
-    return Column(
-      children: [
-        Text(
-          'Scroll Down',
-          style: GoogleFonts.firaCode(
-            fontSize: 12,
-            color: const Color(0xFF64FFDA),
-          ),
-        ),
-        const SizedBox(height: 10),
-        TweenAnimationBuilder<double>(
-          duration: const Duration(milliseconds: 1500),
-          tween: Tween(begin: 0.0, end: 20.0),
-          builder: (context, value, child) {
-            return Transform.translate(
-              offset: Offset(0, value),
-              child: Icon(
-                Icons.keyboard_arrow_down,
-                color: const Color(0xFF64FFDA),
-                size: 30,
+    return Builder(
+      builder: (context) {
+        final theme = Theme.of(context);
+        return Column(
+          children: [
+            Text(
+              'Scroll Down',
+              style: GoogleFonts.firaCode(
+                fontSize: 12,
+                color: theme.colorScheme.primary,
               ),
-            );
-          },
-          onEnd: () {
-            // Loop would go here
-          },
-        ),
-      ],
+            ),
+            const SizedBox(height: 10),
+            TweenAnimationBuilder<double>(
+              duration: const Duration(milliseconds: 1500),
+              tween: Tween(begin: 0.0, end: 20.0),
+              builder: (context, value, child) {
+                return Transform.translate(
+                  offset: Offset(0, value),
+                  child: Icon(
+                    Icons.keyboard_arrow_down,
+                    color: theme.colorScheme.primary,
+                    size: 30,
+                  ),
+                );
+              },
+              onEnd: () {
+                // Loop would go here
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
   Widget _buildDesktopHeroContent(BuildContext context, double screenWidth) {
     final isLargeDesktop = screenWidth > 1440;
     final imageSize = screenWidth < 1024 ? screenWidth * 0.25 : (screenWidth < 1440 ? screenWidth * 0.2 : 280.0);
+    final theme = Theme.of(context);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -658,7 +759,7 @@ class _CVHomePageState extends State<CVHomePage> {
                   'Hello, I\'m',
                   style: GoogleFonts.roboto(
                     fontSize: _getResponsiveFontSize(context, 28),
-                    color: const Color(0xFF64FFDA),
+                    color: theme.colorScheme.primary,
                     fontWeight: FontWeight.w400,
                   ),
                 ),
@@ -671,7 +772,7 @@ class _CVHomePageState extends State<CVHomePage> {
                   style: GoogleFonts.roboto(
                     fontSize: _getResponsiveFontSize(context, 64),
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: theme.textTheme.displayLarge?.color,
                   ),
                 ),
               ),
@@ -689,7 +790,7 @@ class _CVHomePageState extends State<CVHomePage> {
                     ResumeData.profile.subtitle,
                     style: GoogleFonts.roboto(
                       fontSize: _getResponsiveFontSize(context, 18),
-                      color: const Color(0xFF8892B0),
+                      color: theme.textTheme.bodyMedium?.color,
                       height: 1.6,
                     ),
                   ),
@@ -788,6 +889,8 @@ class _CVHomePageState extends State<CVHomePage> {
   }
 
   Widget _buildAnimatedTitle(BuildContext context, double fontSize) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -800,7 +903,7 @@ class _CVHomePageState extends State<CVHomePage> {
               textStyle: GoogleFonts.roboto(
                 fontSize: fontSize,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF8B93FF),
+                color: isDark ? const Color(0xFF8B93FF) : const Color(0xFF6366F1),
               ),
               speed: const Duration(milliseconds: 100),
             ),
@@ -825,7 +928,7 @@ class _CVHomePageState extends State<CVHomePage> {
                         textStyle: GoogleFonts.roboto(
                           fontSize: fontSize - 6,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF64FFDA),
+                          color: theme.colorScheme.primary,
                         ),
                         speed: const Duration(milliseconds: 100),
                       ),
@@ -846,6 +949,8 @@ class _CVHomePageState extends State<CVHomePage> {
 
   Widget _buildSummarySection(BuildContext context) {
     final isMobile = _isMobile(context);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
       key: aboutKey,
@@ -853,7 +958,7 @@ class _CVHomePageState extends State<CVHomePage> {
         top: isMobile ? 60 : 100,
         bottom: isMobile ? 60 : 100,
       ),
-      color: const Color(0xFF0A192F),
+      color: theme.scaffoldBackgroundColor,
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: _getMaxContentWidth(context)),
@@ -868,7 +973,7 @@ class _CVHomePageState extends State<CVHomePage> {
                       '01.',
                       style: GoogleFonts.firaCode(
                         fontSize: _getResponsiveFontSize(context, 24),
-                        color: const Color(0xFF64FFDA),
+                        color: theme.colorScheme.primary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -878,14 +983,14 @@ class _CVHomePageState extends State<CVHomePage> {
                       style: GoogleFonts.roboto(
                         fontSize: _getResponsiveFontSize(context, 32),
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFFCCD6F6),
+                        color: theme.textTheme.displayLarge?.color,
                       ),
                     ),
                     const SizedBox(width: 20),
                     Expanded(
                       child: Container(
                         height: 1,
-                        color: const Color(0xFF233554),
+                        color: isDark ? const Color(0xFF233554) : const Color(0xFFE2E8F0),
                       ),
                     ),
                   ],
@@ -899,7 +1004,7 @@ class _CVHomePageState extends State<CVHomePage> {
                   style: GoogleFonts.roboto(
                     fontSize: _getResponsiveFontSize(context, 18),
                     height: 1.8,
-                    color: const Color(0xFF8892B0),
+                    color: theme.textTheme.bodyMedium?.color,
                   ),
                 ),
               ),
@@ -915,6 +1020,8 @@ class _CVHomePageState extends State<CVHomePage> {
 
     final isMobile = _isMobile(context);
     final isTablet = _isTablet(context);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     // Determine grid column count based on screen size
     int getColumnCount() {
@@ -928,7 +1035,7 @@ class _CVHomePageState extends State<CVHomePage> {
         top: isMobile ? 60 : 100,
         bottom: isMobile ? 60 : 100,
       ),
-      color: const Color(0xFF112240),
+      color: theme.cardColor,
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: _getMaxContentWidth(context)),
@@ -943,7 +1050,7 @@ class _CVHomePageState extends State<CVHomePage> {
                       '02.',
                       style: GoogleFonts.firaCode(
                         fontSize: _getResponsiveFontSize(context, 24),
-                        color: const Color(0xFF64FFDA),
+                        color: theme.colorScheme.primary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -953,14 +1060,14 @@ class _CVHomePageState extends State<CVHomePage> {
                       style: GoogleFonts.roboto(
                         fontSize: _getResponsiveFontSize(context, 32),
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFFCCD6F6),
+                        color: theme.textTheme.displayLarge?.color,
                       ),
                     ),
                     const SizedBox(width: 20),
                     Expanded(
                       child: Container(
                         height: 1,
-                        color: const Color(0xFF233554),
+                        color: isDark ? const Color(0xFF233554) : const Color(0xFFE2E8F0),
                       ),
                     ),
                   ],
@@ -1001,6 +1108,8 @@ class _CVHomePageState extends State<CVHomePage> {
     final companies = ResumeData.profile.experience;
 
     final isMobile = _isMobile(context);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
       key: experienceKey,
@@ -1008,7 +1117,7 @@ class _CVHomePageState extends State<CVHomePage> {
         top: isMobile ? 60 : 100,
         bottom: isMobile ? 60 : 100,
       ),
-      color: const Color(0xFF0A192F),
+      color: theme.scaffoldBackgroundColor,
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: _getMaxContentWidth(context)),
@@ -1023,7 +1132,7 @@ class _CVHomePageState extends State<CVHomePage> {
                       '03.',
                       style: GoogleFonts.firaCode(
                         fontSize: _getResponsiveFontSize(context, 24),
-                        color: const Color(0xFF64FFDA),
+                        color: theme.colorScheme.primary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -1033,14 +1142,14 @@ class _CVHomePageState extends State<CVHomePage> {
                       style: GoogleFonts.roboto(
                         fontSize: _getResponsiveFontSize(context, 32),
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFFCCD6F6),
+                        color: theme.textTheme.displayLarge?.color,
                       ),
                     ),
                     const SizedBox(width: 20),
                     Expanded(
                       child: Container(
                         height: 1,
-                        color: const Color(0xFF233554),
+                        color: isDark ? const Color(0xFF233554) : const Color(0xFFE2E8F0),
                       ),
                     ),
                   ],
@@ -1071,6 +1180,8 @@ class _CVHomePageState extends State<CVHomePage> {
 
     final isMobile = _isMobile(context);
     final isTablet = _isTablet(context);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     int getColumnCount() {
       if (isMobile) return 1;
@@ -1084,7 +1195,7 @@ class _CVHomePageState extends State<CVHomePage> {
         top: isMobile ? 60 : 100,
         bottom: isMobile ? 60 : 100,
       ),
-      color: const Color(0xFF112240),
+      color: theme.cardColor,
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: _getMaxContentWidth(context)),
@@ -1099,24 +1210,24 @@ class _CVHomePageState extends State<CVHomePage> {
                       '04.',
                       style: GoogleFonts.firaCode(
                         fontSize: _getResponsiveFontSize(context, 24),
-                        color: const Color(0xFF64FFDA),
+                        color: theme.colorScheme.primary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      'Featured Projects',
+                      'Projects',
                       style: GoogleFonts.roboto(
                         fontSize: _getResponsiveFontSize(context, 32),
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFFCCD6F6),
+                        color: theme.textTheme.displayLarge?.color,
                       ),
                     ),
                     const SizedBox(width: 20),
                     Expanded(
                       child: Container(
                         height: 1,
-                        color: const Color(0xFF233554),
+                        color: isDark ? const Color(0xFF233554) : const Color(0xFFE2E8F0),
                       ),
                     ),
                   ],
@@ -1167,6 +1278,8 @@ class _CVHomePageState extends State<CVHomePage> {
     final blogs = ResumeData.profile.blogs;
     final isMobile = _isMobile(context);
     final isTablet = _isTablet(context);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     int getColumnCount() {
       if (isMobile) return 1;
@@ -1179,7 +1292,7 @@ class _CVHomePageState extends State<CVHomePage> {
         top: isMobile ? 60 : 100,
         bottom: isMobile ? 60 : 100,
       ),
-      color: const Color(0xFF0A192F),
+      color: theme.scaffoldBackgroundColor,
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: _getMaxContentWidth(context)),
@@ -1194,7 +1307,7 @@ class _CVHomePageState extends State<CVHomePage> {
                       '05.',
                       style: GoogleFonts.firaCode(
                         fontSize: _getResponsiveFontSize(context, 24),
-                        color: const Color(0xFF64FFDA),
+                        color: theme.colorScheme.primary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -1204,14 +1317,14 @@ class _CVHomePageState extends State<CVHomePage> {
                       style: GoogleFonts.roboto(
                         fontSize: _getResponsiveFontSize(context, 32),
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFFCCD6F6),
+                        color: theme.textTheme.displayLarge?.color,
                       ),
                     ),
                     const SizedBox(width: 20),
                     Expanded(
                       child: Container(
                         height: 1,
-                        color: const Color(0xFF233554),
+                        color: isDark ? const Color(0xFF233554) : const Color(0xFFE2E8F0),
                       ),
                     ),
                   ],
@@ -1270,6 +1383,7 @@ class _CVHomePageState extends State<CVHomePage> {
   Widget _buildContactsSection(BuildContext context) {
     final contact = ResumeData.profile.contact;
     final isMobile = _isMobile(context);
+    final theme = Theme.of(context);
 
     return Container(
       key: contactKey,
@@ -1277,7 +1391,7 @@ class _CVHomePageState extends State<CVHomePage> {
         top: isMobile ? 60 : 100,
         bottom: isMobile ? 60 : 100,
       ),
-      color: const Color(0xFF112240),
+      color: theme.cardColor,
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 600),
@@ -1289,11 +1403,11 @@ class _CVHomePageState extends State<CVHomePage> {
                 child: Column(
                   children: [
                     Text(
-                      '06. What\'s Next?',
+                      '06.',
                       style: GoogleFonts.firaCode(
-                        fontSize: _getResponsiveFontSize(context, 18),
-                        color: const Color(0xFF64FFDA),
-                        fontWeight: FontWeight.w500,
+                        fontSize: _getResponsiveFontSize(context, 20),
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.w600,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -1303,7 +1417,7 @@ class _CVHomePageState extends State<CVHomePage> {
                       style: GoogleFonts.roboto(
                         fontSize: _getResponsiveFontSize(context, 48),
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFFCCD6F6),
+                        color: theme.textTheme.displayLarge?.color,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -1318,7 +1432,7 @@ class _CVHomePageState extends State<CVHomePage> {
                   style: GoogleFonts.roboto(
                     fontSize: _getResponsiveFontSize(context, 18),
                     height: 1.6,
-                    color: const Color(0xFF8892B0),
+                    color: theme.textTheme.bodyMedium?.color,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -1333,7 +1447,7 @@ class _CVHomePageState extends State<CVHomePage> {
                     }
                   },
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFF64FFDA), width: 2),
+                    side: BorderSide(color: theme.colorScheme.primary, width: 2),
                     padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(4),
@@ -1342,7 +1456,7 @@ class _CVHomePageState extends State<CVHomePage> {
                   child: Text(
                     'Say Hello',
                     style: GoogleFonts.firaCode(
-                      color: const Color(0xFF64FFDA),
+                      color: theme.colorScheme.primary,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
@@ -1357,12 +1471,13 @@ class _CVHomePageState extends State<CVHomePage> {
   }
 
   Widget _buildFooter(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       padding: EdgeInsets.symmetric(
         vertical: _isMobile(context) ? 40 : 50,
         horizontal: 20,
       ),
-      color: const Color(0xFF0A192F),
+      color: theme.scaffoldBackgroundColor,
       child: Center(
         child: Column(
           children: [
@@ -1382,7 +1497,7 @@ class _CVHomePageState extends State<CVHomePage> {
               'Built with Flutter',
               style: GoogleFonts.firaCode(
                 fontSize: _getResponsiveFontSize(context, 14),
-                color: const Color(0xFF64FFDA),
+                color: theme.colorScheme.primary,
               ),
             ),
             const SizedBox(height: 10),
@@ -1390,7 +1505,7 @@ class _CVHomePageState extends State<CVHomePage> {
               '© ${DateTime.now().year} ${ResumeData.profile.firstName}',
               style: GoogleFonts.roboto(
                 fontSize: _getResponsiveFontSize(context, 14),
-                color: const Color(0xFF8892B0),
+                color: theme.textTheme.bodyMedium?.color,
               ),
               textAlign: TextAlign.center,
             ),
@@ -1401,19 +1516,24 @@ class _CVHomePageState extends State<CVHomePage> {
   }
 
   Widget _buildFooterIcon(IconData icon, String url) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: () => _launchURL(url),
-          child: Icon(
-            icon,
-            color: const Color(0xFF8892B0),
-            size: 24,
+    return Builder(
+      builder: (context) {
+        final theme = Theme.of(context);
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () => _launchURL(url),
+              child: Icon(
+                icon,
+                color: theme.textTheme.bodyMedium?.color,
+                size: 24,
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -1529,6 +1649,8 @@ class _AnimatedSkillCardState extends State<AnimatedSkillCard> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return FadeInUpAnimation(
       delay: widget.delay,
       child: MouseRegion(
@@ -1539,16 +1661,17 @@ class _AnimatedSkillCardState extends State<AnimatedSkillCard> {
           width: widget.width,
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: const Color(0xFF0A192F),
+            color: theme.scaffoldBackgroundColor,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: _isHovered ? const Color(0xFF64FFDA) : const Color(0xFF233554),
+              color:
+                  _isHovered ? theme.colorScheme.primary : (isDark ? const Color(0xFF233554) : const Color(0xFFE2E8F0)),
               width: 1,
             ),
             boxShadow: _isHovered
                 ? [
                     BoxShadow(
-                      color: const Color(0xFF64FFDA).withOpacity(0.1),
+                      color: theme.colorScheme.primary.withOpacity(0.1),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     ),
@@ -1564,7 +1687,7 @@ class _AnimatedSkillCardState extends State<AnimatedSkillCard> {
                 style: GoogleFonts.roboto(
                   fontSize: widget.fontSize,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFFCCD6F6),
+                  color: theme.textTheme.displayLarge?.color,
                 ),
               ),
               const SizedBox(height: 20),
@@ -1575,13 +1698,13 @@ class _AnimatedSkillCardState extends State<AnimatedSkillCard> {
                   return Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF233554),
+                      color: isDark ? const Color(0xFF233554) : const Color(0xFFE0F2FE),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
                       skill.name,
                       style: GoogleFonts.firaCode(
-                        color: const Color(0xFF64FFDA),
+                        color: theme.colorScheme.primary,
                         fontSize: 13,
                       ),
                     ),
@@ -1623,6 +1746,8 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
   Widget build(BuildContext context) {
     // If company has no experiences, we might still want to show it or hide it.
     // Assuming company always has at least one experience or we show empty card.
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return FadeInUpAnimation(
       delay: widget.delay,
@@ -1634,16 +1759,17 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
           margin: const EdgeInsets.only(bottom: 30),
           padding: EdgeInsets.all(widget.isMobile ? 20 : 28),
           decoration: BoxDecoration(
-            color: const Color(0xFF112240),
+            color: theme.cardColor,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: _isHovered ? const Color(0xFF64FFDA) : const Color(0xFF233554),
+              color:
+                  _isHovered ? theme.colorScheme.primary : (isDark ? const Color(0xFF233554) : const Color(0xFFE2E8F0)),
               width: 1,
             ),
             boxShadow: _isHovered
                 ? [
                     BoxShadow(
-                      color: const Color(0xFF64FFDA).withOpacity(0.1),
+                      color: theme.colorScheme.primary.withOpacity(0.1),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     ),
@@ -1675,12 +1801,12 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
                                   width: 48,
                                   height: 48,
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF1A2744),
+                                    color: isDark ? const Color(0xFF1A2744) : Colors.white,
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.business,
-                                    color: Color(0xFF64FFDA),
+                                    color: theme.colorScheme.primary,
                                     size: 24,
                                   ),
                                 );
@@ -1694,12 +1820,12 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
                                   width: 48,
                                   height: 48,
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF1A2744),
+                                    color: isDark ? const Color(0xFF1A2744) : Colors.white,
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.business,
-                                    color: Color(0xFF64FFDA),
+                                    color: theme.colorScheme.primary,
                                     size: 24,
                                   ),
                                 );
@@ -1719,7 +1845,7 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
                           style: GoogleFonts.roboto(
                             fontSize: widget.titleFontSize,
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFFCCD6F6),
+                            color: theme.textTheme.displayLarge?.color,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -1727,7 +1853,7 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
                           '${widget.company.dateRange.forResume} · ${widget.company.totalDuration}',
                           style: GoogleFonts.roboto(
                             fontSize: widget.textFontSize * 0.9,
-                            color: const Color(0xFF8892B0),
+                            color: theme.textTheme.bodyMedium?.color,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -1760,15 +1886,17 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
                                 height: 12,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: isFirst ? const Color(0xFF64FFDA) : const Color(0xFF233554),
-                                  border: Border.all(color: const Color(0xFF64FFDA), width: 2),
+                                  color: isFirst
+                                      ? theme.colorScheme.primary
+                                      : (isDark ? const Color(0xFF233554) : const Color(0xFFE2E8F0)),
+                                  border: Border.all(color: theme.colorScheme.primary, width: 2),
                                 ),
                               ),
                               if (!isLast)
                                 Expanded(
                                   child: Container(
                                     width: 2,
-                                    color: const Color(0xFF233554),
+                                    color: isDark ? const Color(0xFF233554) : const Color(0xFFE2E8F0),
                                   ),
                                 ),
                             ],
@@ -1791,7 +1919,7 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
                                           style: GoogleFonts.roboto(
                                             fontSize: widget.titleFontSize * 0.9,
                                             fontWeight: FontWeight.bold,
-                                            color: const Color(0xFF64FFDA),
+                                            color: theme.colorScheme.primary,
                                           ),
                                         ),
                                         const SizedBox(height: 4),
@@ -1799,7 +1927,7 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
                                           exp.dateRange.forResume,
                                           style: GoogleFonts.roboto(
                                             fontSize: widget.textFontSize * 0.9,
-                                            color: const Color(0xFF8892B0),
+                                            color: theme.textTheme.bodyMedium?.color,
                                             fontWeight: FontWeight.w500,
                                           ),
                                         ),
@@ -1814,7 +1942,7 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
                                             style: GoogleFonts.roboto(
                                               fontSize: widget.titleFontSize * 0.9,
                                               fontWeight: FontWeight.bold,
-                                              color: const Color(0xFF64FFDA),
+                                              color: theme.colorScheme.primary,
                                             ),
                                           ),
                                         ),
@@ -1822,7 +1950,7 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
                                           exp.dateRange.forResume,
                                           style: GoogleFonts.roboto(
                                             fontSize: widget.textFontSize * 0.9,
-                                            color: const Color(0xFF8892B0),
+                                            color: theme.textTheme.bodyMedium?.color,
                                             fontWeight: FontWeight.w500,
                                           ),
                                         ),
@@ -1833,7 +1961,7 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
                                 '${exp.location} · ${exp.employmentType}',
                                 style: GoogleFonts.roboto(
                                   fontSize: widget.textFontSize * 0.85,
-                                  color: const Color(0xFF8892B0),
+                                  color: theme.textTheme.bodyMedium?.color,
                                   fontStyle: FontStyle.italic,
                                 ),
                               ),
@@ -1843,7 +1971,7 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
                                 style: GoogleFonts.roboto(
                                   fontSize: widget.textFontSize,
                                   height: 1.6,
-                                  color: const Color(0xFF8892B0),
+                                  color: theme.textTheme.bodyMedium?.color,
                                 ),
                               ),
                             ],
@@ -1889,6 +2017,8 @@ class _AnimatedProjectCardState extends State<AnimatedProjectCard> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return FadeInUpAnimation(
       delay: widget.delay,
       child: MouseRegion(
@@ -1902,16 +2032,18 @@ class _AnimatedProjectCardState extends State<AnimatedProjectCard> {
             width: widget.width,
             padding: const EdgeInsets.all(28),
             decoration: BoxDecoration(
-              color: const Color(0xFF0A192F),
+              color: theme.scaffoldBackgroundColor,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: _isHovered ? const Color(0xFF64FFDA) : const Color(0xFF233554),
+                color: _isHovered
+                    ? theme.colorScheme.primary
+                    : (isDark ? const Color(0xFF233554) : const Color(0xFFE2E8F0)),
                 width: 1,
               ),
               boxShadow: _isHovered
                   ? [
                       BoxShadow(
-                        color: const Color(0xFF64FFDA).withOpacity(0.1),
+                        color: theme.colorScheme.primary.withOpacity(0.1),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -1928,13 +2060,13 @@ class _AnimatedProjectCardState extends State<AnimatedProjectCard> {
                   children: [
                     Icon(
                       Icons.folder_open,
-                      color: const Color(0xFF64FFDA),
+                      color: theme.colorScheme.primary,
                       size: 40,
                     ),
                     if (widget.onTap != null)
                       Icon(
                         Icons.open_in_new,
-                        color: const Color(0xFF8892B0),
+                        color: theme.textTheme.bodyMedium?.color,
                         size: 20,
                       ),
                   ],
@@ -1945,7 +2077,7 @@ class _AnimatedProjectCardState extends State<AnimatedProjectCard> {
                   style: GoogleFonts.roboto(
                     fontSize: widget.titleFontSize,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFFCCD6F6),
+                    color: theme.textTheme.displayLarge?.color,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -1954,7 +2086,7 @@ class _AnimatedProjectCardState extends State<AnimatedProjectCard> {
                   style: GoogleFonts.roboto(
                     fontSize: widget.descFontSize,
                     height: 1.6,
-                    color: const Color(0xFF8892B0),
+                    color: theme.textTheme.bodyMedium?.color,
                   ),
                   maxLines: 4,
                   overflow: TextOverflow.ellipsis,
@@ -1968,7 +2100,7 @@ class _AnimatedProjectCardState extends State<AnimatedProjectCard> {
                       s.name,
                       style: GoogleFonts.firaCode(
                         fontSize: 13,
-                        color: const Color(0xFF8892B0),
+                        color: theme.textTheme.bodyMedium?.color,
                       ),
                     );
                   }).toList(),
@@ -2085,6 +2217,8 @@ class _FloatingIconState extends State<_FloatingIcon> with SingleTickerProviderS
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
@@ -2097,10 +2231,10 @@ class _FloatingIconState extends State<_FloatingIcon> with SingleTickerProviderS
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFF1A2744),
+              color: isDark ? const Color(0xFF1A2744) : Colors.white,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: const Color(0xFF233554),
+                color: isDark ? const Color(0xFF233554) : const Color(0xFFE2E8F0),
                 width: 1,
               ),
               boxShadow: [
@@ -2153,6 +2287,7 @@ class _BlinkingCursorState extends State<_BlinkingCursor> with SingleTickerProvi
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return FadeTransition(
       opacity: _controller,
       child: Text(
@@ -2160,7 +2295,7 @@ class _BlinkingCursorState extends State<_BlinkingCursor> with SingleTickerProvi
         style: GoogleFonts.roboto(
           fontSize: widget.fontSize,
           fontWeight: FontWeight.w600,
-          color: const Color(0xFF64FFDA),
+          color: theme.colorScheme.primary,
         ),
       ),
     );
