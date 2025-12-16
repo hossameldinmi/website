@@ -8,7 +8,12 @@ class Experiences {
   static final values = [
     Company(
       name: 'Ynmo',
-      logo: ImageNetworkMedia.url('https://ynmodata.com/wp-content/uploads/2024/08/favico.png'),
+      logo: ImageAssetMedia(
+        assetPath: 'assets/logos/ynmo_logo.png',
+        mimeType: 'images/png',
+        name: 'ynmo_logo.png',
+        size: 2.66.kb,
+      ),
       experiences: [
         Experience(
           title: 'Senior Mobile Software Engineer',
@@ -23,7 +28,12 @@ class Experiences {
     ),
     Company(
       name: 'PortMe',
-      logo: ImageNetworkMedia.url('https://portme.app/assets/images/fav.png'),
+      logo: ImageAssetMedia(
+        assetPath: 'assets/logos/portme_logo.png',
+        mimeType: 'images/png',
+        name: 'portme_logo.png',
+        size: 1.18.kb,
+      ),
       experiences: [
         Experience(
           title: 'Senior Mobile Software Engineer',
@@ -38,8 +48,12 @@ class Experiences {
     ),
     Company(
       name: 'Facegraph',
-      logo: ImageNetworkMedia.url(
-          'https://facegraph.com/wp-content/uploads/2022/12/favicon.png'), // Restoring Facegraph logo (Note: This is white, might need adjustment)
+      logo: ImageAssetMedia(
+        assetPath: 'assets/logos/facegraph_logo.png',
+        mimeType: 'images/png',
+        name: 'facegraph_logo.png',
+        size: 883.b,
+      ),
       experiences: [
         Experience(
           title: 'Senior Software Engineer',
@@ -63,8 +77,12 @@ class Experiences {
     ),
     Company(
       name: 'EME International',
-      logo: ImageNetworkMedia.url(
-          'https://media.licdn.com/dms/image/v2/C4D0BAQGu4ks3R0ACQw/company-logo_200_200/company-logo_200_200/0/1658672814240/eme_international_logo?e=1767225600&v=beta&t=l_8ac5BU9V31UFZsAqRP3TWCwGE4Le4x9phoFsAmiZg'),
+      logo: ImageAssetMedia(
+        assetPath: 'assets/logos/eme_logo.png',
+        mimeType: 'images/png',
+        name: 'eme_logo.png',
+        size: 6.68.kb,
+      ),
       experiences: [
         Experience(
           title: 'Specialist Software Engineer - .NET and Cross-Platform',
