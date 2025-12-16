@@ -5,9 +5,11 @@ import 'package:cv_website/src/models/project.dart';
 import 'package:cv_website/src/models/media.dart';
 import 'package:media_source/media_source.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'dart:html' as html;
 import 'src/data/resume_data.dart';
 
 void main() {
@@ -42,23 +44,91 @@ class CVWebsite extends StatelessWidget {
   }
 }
 
-class CVHomePage extends StatelessWidget {
+class CVHomePage extends StatefulWidget {
   const CVHomePage({super.key});
+
+  @override
+  State<CVHomePage> createState() => _CVHomePageState();
+}
+
+class _CVHomePageState extends State<CVHomePage> {
+  // GlobalKeys for section navigation
+  static final GlobalKey aboutKey = GlobalKey();
+  static final GlobalKey experienceKey = GlobalKey();
+  static final GlobalKey projectsKey = GlobalKey();
+  static final GlobalKey contactKey = GlobalKey();
+
+  // Section configuration
+  static final List<Map<String, dynamic>> _sections = [
+    {'title': 'About', 'key': aboutKey},
+    {'title': 'Experience', 'key': experienceKey},
+    {'title': 'Work', 'key': projectsKey},
+    {'title': 'Contact', 'key': contactKey},
+  ];
+
+  final ScrollController _scrollController = ScrollController();
+  String _activeSection = 'About';
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    final scrollPosition = _scrollController.position.pixels;
+    final screenHeight = MediaQuery.sizeOf(context).height;
+
+    String newActiveSection = _sections.first['title'];
+
+    // Check sections in reverse order (bottom to top) to find the active one
+    for (var i = _sections.length - 1; i >= 0; i--) {
+      final section = _sections[i];
+      final position = _getSectionPosition(section['key'] as GlobalKey);
+
+      if (position != null && scrollPosition >= position - screenHeight / 3) {
+        newActiveSection = section['title'] as String;
+        break;
+      }
+    }
+
+    if (newActiveSection != _activeSection) {
+      setState(() {
+        _activeSection = newActiveSection;
+      });
+    }
+  }
+
+  double? _getSectionPosition(GlobalKey key) {
+    final RenderBox? renderBox = key.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox != null) {
+      final position = renderBox.localToGlobal(Offset.zero);
+      return position.dy + _scrollController.position.pixels;
+    }
+    return null;
+  }
 
   // Helper method to determine if screen is mobile
   bool _isMobile(BuildContext context) {
-    return MediaQuery.of(context).size.width < 600;
+    return MediaQuery.sizeOf(context).width < 600;
   }
 
   // Helper method to determine if screen is tablet
   bool _isTablet(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
     return width >= 600 && width < 1024;
   }
 
   // Get responsive max width for content
   double _getMaxContentWidth(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
     if (width < 600) return width;
     if (width < 1024) return 900;
     if (width < 1440) return 1000;
@@ -85,6 +155,18 @@ class CVHomePage extends StatelessWidget {
     return base;
   }
 
+  // Scroll to section method
+  void _scrollToSection(GlobalKey key) {
+    final context = key.currentContext;
+    if (context != null) {
+      Scrollable.ensureVisible(
+        context,
+        duration: const Duration(milliseconds: 800),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isMobile = _isMobile(context);
@@ -106,7 +188,7 @@ class CVHomePage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '<Hossam />',
+                      '<Hossam Eldin/>',
                       style: GoogleFonts.firaCode(
                         color: const Color(0xFF64FFDA),
                         fontSize: 20,
@@ -115,24 +197,28 @@ class CVHomePage extends StatelessWidget {
                     ),
                     Row(
                       children: [
-                        _NavBarItem('About', () {}), // TODO: Implement scroll
-                        _NavBarItem('Experience', () {}),
-                        _NavBarItem('Work', () {}),
-                        _NavBarItem('Contact', () {}),
-                        const SizedBox(width: 20),
-                        OutlinedButton(
-                          onPressed: () {}, // TODO: Download Resume
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Color(0xFF64FFDA)),
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                          ),
-                          child: Text(
-                            'Resume',
-                            style: GoogleFonts.firaCode(
-                              color: const Color(0xFF64FFDA),
-                            ),
-                          ),
-                        ),
+                        ..._sections.map((section) => _navBarItem(
+                              section['title'] as String,
+                              () => _scrollToSection(section['key'] as GlobalKey),
+                              _activeSection == section['title'],
+                            )),
+                        // const SizedBox(width: 20),
+                        // OutlinedButton(
+                        //   onPressed: () {
+                        //     _launchURL(
+                        //         'https://drive.google.com/file/d/1DxheH3eOao1tRIEwB1TWJQaDtm1SBOaj/view?usp=sharing');
+                        //   },
+                        //   style: OutlinedButton.styleFrom(
+                        //     side: const BorderSide(color: Color(0xFF64FFDA)),
+                        //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                        //   ),
+                        //   child: Text(
+                        //     'Resume',
+                        //     style: GoogleFonts.firaCode(
+                        //       color: const Color(0xFF64FFDA),
+                        //     ),
+                        //   ),
+                        // ),
                       ],
                     ),
                   ],
@@ -143,13 +229,62 @@ class CVHomePage extends StatelessWidget {
           ? Drawer(
               backgroundColor: const Color(0xFF112240),
               child: ListView(
+                padding: EdgeInsets.zero,
                 children: [
-                  // Drawer Items
+                  DrawerHeader(
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF0A192F),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '<Hossam Eldin/>',
+                          style: GoogleFonts.firaCode(
+                            color: const Color(0xFF64FFDA),
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Menu',
+                          style: GoogleFonts.roboto(
+                            color: const Color(0xFF8892B0),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ..._sections.map((section) => ListTile(
+                        leading: Icon(
+                          Icons.chevron_right,
+                          color: _activeSection == section['title'] ? const Color(0xFF64FFDA) : const Color(0xFF8892B0),
+                        ),
+                        title: Text(
+                          section['title'] as String,
+                          style: GoogleFonts.firaCode(
+                            color:
+                                _activeSection == section['title'] ? const Color(0xFF64FFDA) : const Color(0xFFCCD6F6),
+                            fontSize: 16,
+                            fontWeight: _activeSection == section['title'] ? FontWeight.bold : FontWeight.normal,
+                          ),
+                        ),
+                        selected: _activeSection == section['title'],
+                        selectedTileColor: const Color(0xFF0A192F),
+                        onTap: () {
+                          Navigator.pop(context);
+                          _scrollToSection(section['key'] as GlobalKey);
+                        },
+                      )),
                 ],
               ),
             )
           : null,
       body: SingleChildScrollView(
+        controller: _scrollController,
         child: Column(
           children: [
             _buildHeader(context),
@@ -167,7 +302,7 @@ class CVHomePage extends StatelessWidget {
     );
   }
 
-  Widget _NavBarItem(String title, VoidCallback onTap) {
+  Widget _navBarItem(String title, VoidCallback onTap, bool isActive) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15),
       child: TextButton(
@@ -175,8 +310,9 @@ class CVHomePage extends StatelessWidget {
         child: Text(
           title,
           style: GoogleFonts.firaCode(
-            color: const Color(0xFFCCD6F6),
+            color: isActive ? const Color(0xFF64FFDA) : const Color(0xFFCCD6F6),
             fontSize: 14,
+            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
           ),
         ),
       ),
@@ -185,8 +321,8 @@ class CVHomePage extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context) {
     final isMobile = _isMobile(context);
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.sizeOf(context).height;
+    final screenWidth = MediaQuery.sizeOf(context).width;
 
     return Container(
       height: isMobile ? screenHeight * 0.85 : screenHeight * 0.95,
@@ -234,7 +370,7 @@ class CVHomePage extends StatelessWidget {
         FadeInUpAnimation(
           delay: const Duration(milliseconds: 200),
           child: _buildAnimatedProfileImage(
-            MediaQuery.of(context).size.width * 0.35,
+            MediaQuery.sizeOf(context).width * 0.35,
           ),
         ),
         const SizedBox(height: 40),
@@ -308,8 +444,18 @@ class CVHomePage extends StatelessWidget {
             children: [
               _buildCTAButton(
                 'View CV',
-                () {
-                  // TODO: Download CV
+                () async {
+                  if (ResumeData.profile.resume != null) {
+                    await ResumeData.profile.resume!.fold(
+                      network: (n) async {
+                        await _launchURL(n.uri.toString());
+                      },
+                      asset: (a) async {
+                        await _downloadAssetFile(a.assetPath, a.name);
+                      },
+                      orElse: () async {},
+                    );
+                  }
                 },
                 isPrimary: true,
               ),
@@ -559,7 +705,23 @@ class CVHomePage extends StatelessWidget {
                 delay: const Duration(milliseconds: 1200),
                 child: Row(
                   children: [
-                    _buildCTAButton('View CV', () {}, isPrimary: true),
+                    _buildCTAButton(
+                      'View CV',
+                      () async {
+                        if (ResumeData.profile.resume != null) {
+                          await ResumeData.profile.resume!.fold(
+                            network: (n) async {
+                              await _launchURL(n.uri.toString());
+                            },
+                            asset: (a) async {
+                              await _downloadAssetFile(a.assetPath, a.name);
+                            },
+                            orElse: () async {},
+                          );
+                        }
+                      },
+                      isPrimary: true,
+                    ),
                     const SizedBox(width: 20),
                     _buildCTAButton('View Projects', () {}, isPrimary: false),
                   ],
@@ -632,7 +794,7 @@ class CVHomePage extends StatelessWidget {
         AnimatedTextKit(
           animatedTexts: [
             TypewriterAnimatedText(
-              ResumeData.profile.title.split(' ').first,
+              ResumeData.profile.title,
               textStyle: GoogleFonts.roboto(
                 fontSize: fontSize,
                 fontWeight: FontWeight.w600,
@@ -652,6 +814,7 @@ class CVHomePage extends StatelessWidget {
     final isMobile = _isMobile(context);
 
     return Container(
+      key: aboutKey,
       padding: _getResponsivePadding(context).copyWith(
         top: isMobile ? 60 : 100,
         bottom: isMobile ? 60 : 100,
@@ -806,6 +969,7 @@ class CVHomePage extends StatelessWidget {
     final isMobile = _isMobile(context);
 
     return Container(
+      key: experienceKey,
       padding: _getResponsivePadding(context).copyWith(
         top: isMobile ? 60 : 100,
         bottom: isMobile ? 60 : 100,
@@ -881,6 +1045,7 @@ class CVHomePage extends StatelessWidget {
     }
 
     return Container(
+      key: projectsKey,
       padding: _getResponsivePadding(context).copyWith(
         top: isMobile ? 60 : 100,
         bottom: isMobile ? 60 : 100,
@@ -1073,6 +1238,7 @@ class CVHomePage extends StatelessWidget {
     final isMobile = _isMobile(context);
 
     return Container(
+      key: contactKey,
       padding: _getResponsivePadding(context).copyWith(
         top: isMobile ? 60 : 100,
         bottom: isMobile ? 60 : 100,
@@ -1221,6 +1387,24 @@ class CVHomePage extends StatelessWidget {
     final uri = Uri.parse(url);
     if (!await launchUrl(uri)) {
       debugPrint('Could not launch $url');
+    }
+  }
+
+  Future<void> _downloadAssetFile(String assetPath, String fileName) async {
+    try {
+      final byteData = await rootBundle.load(assetPath);
+      final bytes = byteData.buffer.asUint8List();
+
+      final blob = html.Blob([bytes]);
+      final url = html.Url.createObjectUrlFromBlob(blob);
+
+      html.AnchorElement(href: url)
+        ..setAttribute('download', fileName)
+        ..click();
+
+      html.Url.revokeObjectUrl(url);
+    } catch (e) {
+      debugPrint('Could not download asset file: $e');
     }
   }
 }
