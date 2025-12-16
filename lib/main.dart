@@ -256,11 +256,9 @@ class _CVHomePageState extends State<CVHomePage> {
                               _activeSection == section['title'],
                             )),
                         const SizedBox(width: 20),
-                        IconButton(
+                        _AnimatedIconButton(
+                          icon: widget.currentThemeMode == ThemeMode.dark ? Icons.light_mode : Icons.dark_mode,
                           onPressed: widget.onThemeToggle,
-                          icon: Icon(
-                            widget.currentThemeMode == ThemeMode.dark ? Icons.light_mode : Icons.dark_mode,
-                          ),
                           color: theme.colorScheme.primary,
                           tooltip: widget.currentThemeMode == ThemeMode.dark
                               ? 'Switch to Light Mode'
@@ -392,7 +390,7 @@ class _CVHomePageState extends State<CVHomePage> {
         final theme = Theme.of(context);
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15),
-          child: TextButton(
+          child: _AnimatedButton(
             onPressed: onTap,
             child: Text(
               title,
@@ -416,7 +414,8 @@ class _CVHomePageState extends State<CVHomePage> {
     final isDark = theme.brightness == Brightness.dark;
 
     return Container(
-      height: isMobile ? screenHeight * 0.85 : screenHeight * 0.95,
+      height: isMobile ? null : screenHeight * 0.95,
+      padding: isMobile ? const EdgeInsets.symmetric(vertical: 60) : null,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isDark
@@ -460,8 +459,9 @@ class _CVHomePageState extends State<CVHomePage> {
   Widget _buildMobileHeroContent(BuildContext context) {
     final theme = Theme.of(context);
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
+        const SizedBox(height: 40),
         // Profile image with animation
         FadeInUpAnimation(
           delay: const Duration(milliseconds: 200),
@@ -557,14 +557,13 @@ class _CVHomePageState extends State<CVHomePage> {
               ),
               _buildCTAButton(
                 'View Projects',
-                () {
-                  // TODO: Scroll to projects
-                },
+                () => _scrollToSection(projectsKey),
                 isPrimary: false,
               ),
             ],
           ),
         ),
+        const SizedBox(height: 40),
       ],
     );
   }
@@ -609,67 +608,16 @@ class _CVHomePageState extends State<CVHomePage> {
   }
 
   Widget _buildCTAButton(String text, VoidCallback onPressed, {required bool isPrimary}) {
-    return Builder(
-      builder: (context) {
-        final isMobile = _isMobile(context);
-        final theme = Theme.of(context);
-        final isDark = theme.brightness == Brightness.dark;
-        return MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: InkWell(
-            onTap: onPressed,
-            borderRadius: BorderRadius.circular(50),
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: isMobile ? 24 : 32,
-                vertical: isMobile ? 14 : 18,
-              ),
-              decoration: BoxDecoration(
-                gradient: isPrimary
-                    ? LinearGradient(
-                        colors: isDark
-                            ? [const Color(0xFF5A9FFF), const Color(0xFF64FFDA)]
-                            : [const Color(0xFF0EA5E9), const Color(0xFF06B6D4)],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                      )
-                    : null,
-                borderRadius: BorderRadius.circular(50),
-                border: isPrimary
-                    ? null
-                    : Border.all(
-                        color: theme.textTheme.bodyMedium?.color ?? Colors.grey,
-                        width: 2,
-                      ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    text,
-                    style: GoogleFonts.roboto(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: isPrimary ? Colors.white : theme.textTheme.displayLarge?.color,
-                    ),
-                  ),
-                  if (isPrimary) ...[
-                    const SizedBox(width: 8),
-                    const Icon(Icons.arrow_forward, size: 18, color: Colors.white),
-                  ],
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+    return _AnimatedCTAButton(
+      text: text,
+      onPressed: onPressed,
+      isPrimary: isPrimary,
+      isMobile: _isMobile(context),
     );
   }
 
   Widget _buildSocialIcons(BuildContext context) {
     final contact = ResumeData.profile.contact;
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
     final socialItems = <Map<String, dynamic>>[];
 
     if (contact.linkedinUrl != null) {
@@ -685,30 +633,9 @@ class _CVHomePageState extends State<CVHomePage> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: socialItems.map((item) {
-        return Padding(
-          padding: const EdgeInsets.only(right: 16),
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              onTap: () => _launchURL(item['url'] as String),
-              child: Container(
-                padding: EdgeInsets.all(_isMobile(context) ? 12 : 14),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1A2744) : Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isDark ? const Color(0xFF233554) : const Color(0xFFE2E8F0),
-                    width: 1,
-                  ),
-                ),
-                child: Icon(
-                  item['icon'] as IconData,
-                  color: theme.textTheme.bodyMedium?.color,
-                  size: _isMobile(context) ? 20 : 22,
-                ),
-              ),
-            ),
-          ),
+        return _AnimatedSocialIcon(
+          icon: item['icon'] as IconData,
+          onTap: () => _launchURL(item['url'] as String),
         );
       }).toList(),
     );
@@ -836,7 +763,7 @@ class _CVHomePageState extends State<CVHomePage> {
                       isPrimary: true,
                     ),
                     const SizedBox(width: 20),
-                    _buildCTAButton('View Projects', () {}, isPrimary: false),
+                    _buildCTAButton('View Projects', () => _scrollToSection(projectsKey), isPrimary: false),
                   ],
                 ),
               ),
@@ -1397,7 +1324,7 @@ class _CVHomePageState extends State<CVHomePage> {
               const SizedBox(height: 50),
               FadeInUpAnimation(
                 delay: const Duration(milliseconds: 600),
-                child: OutlinedButton(
+                child: _AnimatedOutlinedButton(
                   onPressed: () {
                     if (contact.email != null) {
                       _launchURL('mailto:${contact.email}');
@@ -1483,24 +1410,10 @@ class _CVHomePageState extends State<CVHomePage> {
   }
 
   Widget _buildFooterIcon(IconData icon, String url) {
-    return Builder(
-      builder: (context) {
-        final theme = Theme.of(context);
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              onTap: () => _launchURL(url),
-              child: Icon(
-                icon,
-                color: theme.textTheme.bodyMedium?.color,
-                size: 24,
-              ),
-            ),
-          ),
-        );
-      },
+    return _AnimatedIconButton(
+      icon: icon,
+      onPressed: () => _launchURL(url),
+      size: 24,
     );
   }
 
@@ -2264,6 +2177,287 @@ class _BlinkingCursorState extends State<_BlinkingCursor> with SingleTickerProvi
           fontSize: widget.fontSize,
           fontWeight: FontWeight.w600,
           color: theme.colorScheme.primary,
+        ),
+      ),
+    );
+  }
+}
+
+// Animated Button Widgets
+class _AnimatedButton extends StatefulWidget {
+  final Widget child;
+  final VoidCallback onPressed;
+
+  const _AnimatedButton({
+    required this.child,
+    required this.onPressed,
+  });
+
+  @override
+  State<_AnimatedButton> createState() => _AnimatedButtonState();
+}
+
+class _AnimatedButtonState extends State<_AnimatedButton> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedScale(
+        scale: _isHovered ? 1.05 : 1.0,
+        duration: const Duration(milliseconds: 200),
+        child: TextButton(
+          onPressed: widget.onPressed,
+          child: widget.child,
+        ),
+      ),
+    );
+  }
+}
+
+class _AnimatedIconButton extends StatefulWidget {
+  final IconData icon;
+  final VoidCallback onPressed;
+  final double? size;
+  final Color? color;
+  final String? tooltip;
+
+  const _AnimatedIconButton({
+    required this.icon,
+    required this.onPressed,
+    this.size,
+    this.color,
+    this.tooltip,
+  });
+
+  @override
+  State<_AnimatedIconButton> createState() => _AnimatedIconButtonState();
+}
+
+class _AnimatedIconButtonState extends State<_AnimatedIconButton> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: AnimatedScale(
+          scale: _isHovered ? 1.1 : 1.0,
+          duration: const Duration(milliseconds: 200),
+          child: IconButton(
+            onPressed: widget.onPressed,
+            icon: Icon(widget.icon),
+            color: widget.color ?? theme.textTheme.bodyMedium?.color,
+            iconSize: widget.size,
+            tooltip: widget.tooltip,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AnimatedOutlinedButton extends StatefulWidget {
+  final VoidCallback onPressed;
+  final Widget child;
+  final ButtonStyle? style;
+
+  const _AnimatedOutlinedButton({
+    required this.onPressed,
+    required this.child,
+    this.style,
+  });
+
+  @override
+  State<_AnimatedOutlinedButton> createState() => _AnimatedOutlinedButtonState();
+}
+
+class _AnimatedOutlinedButtonState extends State<_AnimatedOutlinedButton> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedScale(
+        scale: _isHovered ? 1.05 : 1.0,
+        duration: const Duration(milliseconds: 200),
+        child: OutlinedButton(
+          onPressed: widget.onPressed,
+          style: widget.style,
+          child: widget.child,
+        ),
+      ),
+    );
+  }
+}
+
+class _AnimatedSocialIcon extends StatefulWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _AnimatedSocialIcon({
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  State<_AnimatedSocialIcon> createState() => _AnimatedSocialIconState();
+}
+
+class _AnimatedSocialIconState extends State<_AnimatedSocialIcon> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final isMobile = MediaQuery.sizeOf(context).width < 600;
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 16),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: AnimatedScale(
+          scale: _isHovered ? 1.1 : 1.0,
+          duration: const Duration(milliseconds: 200),
+          child: GestureDetector(
+            onTap: widget.onTap,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: EdgeInsets.all(isMobile ? 12 : 14),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF1A2744) : Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: _isHovered
+                      ? theme.colorScheme.primary
+                      : (isDark ? const Color(0xFF233554) : const Color(0xFFE2E8F0)),
+                  width: 1,
+                ),
+                boxShadow: _isHovered
+                    ? [
+                        BoxShadow(
+                          color: theme.colorScheme.primary.withOpacity(0.4),
+                          blurRadius: 12,
+                          spreadRadius: 2,
+                        ),
+                      ]
+                    : [],
+              ),
+              child: Icon(
+                widget.icon,
+                color: _isHovered ? theme.colorScheme.primary : theme.textTheme.bodyMedium?.color,
+                size: isMobile ? 20 : 22,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AnimatedCTAButton extends StatefulWidget {
+  final String text;
+  final VoidCallback onPressed;
+  final bool isPrimary;
+  final bool isMobile;
+
+  const _AnimatedCTAButton({
+    required this.text,
+    required this.onPressed,
+    required this.isPrimary,
+    required this.isMobile,
+  });
+
+  @override
+  State<_AnimatedCTAButton> createState() => _AnimatedCTAButtonState();
+}
+
+class _AnimatedCTAButtonState extends State<_AnimatedCTAButton> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedScale(
+        scale: _isHovered ? 1.05 : 1.0,
+        duration: const Duration(milliseconds: 200),
+        child: GestureDetector(
+          onTap: widget.onPressed,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: EdgeInsets.symmetric(
+              horizontal: widget.isMobile ? 24 : 32,
+              vertical: widget.isMobile ? 14 : 18,
+            ),
+            decoration: BoxDecoration(
+              gradient: widget.isPrimary
+                  ? LinearGradient(
+                      colors: isDark
+                          ? [const Color(0xFF5A9FFF), const Color(0xFF64FFDA)]
+                          : [const Color(0xFF0EA5E9), const Color(0xFF06B6D4)],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    )
+                  : null,
+              borderRadius: BorderRadius.circular(50),
+              border: widget.isPrimary
+                  ? null
+                  : Border.all(
+                      color:
+                          _isHovered ? theme.colorScheme.primary : (theme.textTheme.bodyMedium?.color ?? Colors.grey),
+                      width: 2,
+                    ),
+              boxShadow: _isHovered && widget.isPrimary
+                  ? [
+                      BoxShadow(
+                        color: (isDark ? const Color(0xFF64FFDA) : const Color(0xFF0EA5E9)).withOpacity(0.4),
+                        blurRadius: 16,
+                        spreadRadius: 2,
+                      ),
+                    ]
+                  : [],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  widget.text,
+                  style: GoogleFonts.roboto(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: widget.isPrimary
+                        ? Colors.white
+                        : (_isHovered ? theme.colorScheme.primary : theme.textTheme.displayLarge?.color),
+                  ),
+                ),
+                if (widget.isPrimary) ...[
+                  const SizedBox(width: 8),
+                  const Icon(Icons.arrow_forward, size: 18, color: Colors.white),
+                ],
+              ],
+            ),
+          ),
         ),
       ),
     );
