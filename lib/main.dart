@@ -11,6 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'dart:html' as html;
 import 'src/data/resume_data.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 void main() {
   runApp(const CVWebsite());
@@ -1738,10 +1739,10 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
                           height: 48,
                           color: Colors.white,
                           child: widget.company.logo!.fold(
-                            network: (n) => Image.network(
-                              n.uri.toString(),
+                            network: (n) => CachedNetworkImage(
+                              imageUrl: n.uri.toString(),
                               fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
+                              errorWidget: (context, error, stackTrace) {
                                 return Container(
                                   width: 48,
                                   height: 48,

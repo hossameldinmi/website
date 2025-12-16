@@ -4,7 +4,7 @@ import 'package:media_source/media_source.dart';
 
 class Company {
   final String name;
-  final MediaSource? logo;
+  final MediaSource<ImageType>? logo;
   final List<Experience> experiences;
 
   const Company({
