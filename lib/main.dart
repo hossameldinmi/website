@@ -85,8 +85,18 @@ class _CVWebsiteState extends State<CVWebsite> {
       theme: _lightTheme,
       darkTheme: _darkTheme,
       themeMode: _themeMode,
-      home: SelectionArea(
-        child: CVHomePage(onThemeToggle: _toggleTheme, currentThemeMode: _themeMode),
+      home: Banner(
+        message: 'BETA',
+        location: BannerLocation.topStart,
+        color: const Color(0xFFFF4081),
+        textStyle: GoogleFonts.inter(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.2,
+        ),
+        child: SelectionArea(
+          child: CVHomePage(onThemeToggle: _toggleTheme, currentThemeMode: _themeMode),
+        ),
       ),
     );
   }
