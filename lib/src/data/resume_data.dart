@@ -3,7 +3,7 @@ import 'package:cv_website/src/data/certifications.dart';
 import 'package:cv_website/src/data/education.dart';
 import 'package:cv_website/src/data/experiences.dart';
 import 'package:cv_website/src/data/projects.dart';
-import 'package:cv_website/src/data/skils.dart';
+import 'package:cv_website/src/data/skills.dart';
 import 'package:cv_website/src/models/contact.dart';
 import 'package:cv_website/src/models/language.dart';
 import 'package:cv_website/src/models/linked_in_profile.dart';

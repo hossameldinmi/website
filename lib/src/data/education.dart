@@ -1,4 +1,4 @@
-import 'package:cv_website/src/data/skils.dart';
+import 'package:cv_website/src/data/skills.dart';
 import 'package:cv_website/src/models/date_range.dart';
 import 'package:cv_website/src/models/education.dart';
 

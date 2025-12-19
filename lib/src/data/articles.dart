@@ -1,4 +1,4 @@
-import 'package:cv_website/src/data/skils.dart';
+import 'package:cv_website/src/data/skills.dart';
 import 'package:cv_website/src/models/article.dart';
 import 'package:media_source/media_source.dart';
 
