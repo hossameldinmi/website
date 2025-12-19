@@ -68,4 +68,4 @@ each media has:
     - description
     - url
     - type
-    - thumbnail
+    - thumbnail(MediaSource) optional
