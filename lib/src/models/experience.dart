@@ -5,7 +5,7 @@ import 'package:cv_website/src/models/skill.dart';
 class Experience {
   final String title;
 
-  final String location;
+  final String locationType;
   final String employmentType; // Full-time, Contract, etc.
   final DateRange dateRange;
   final String description;
@@ -14,7 +14,7 @@ class Experience {
 
   Experience({
     required this.title,
-    this.location = '',
+    this.locationType = '',
     this.employmentType = '',
     required this.dateRange,
     required this.description,

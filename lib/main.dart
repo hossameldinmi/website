@@ -1919,7 +1919,7 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '${widget.company.dateRange.forResume} · ${widget.company.totalDuration}',
+                          '${widget.company.location} · ${widget.company.totalDuration}',
                           style: GoogleFonts.roboto(
                             fontSize: widget.textFontSize * 0.9,
                             color: theme.textTheme.bodyMedium?.color,
@@ -2004,7 +2004,7 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '${exp.location} · ${exp.employmentType}',
+                                '${exp.locationType} · ${exp.employmentType}',
                                 style: GoogleFonts.roboto(
                                   fontSize: widget.textFontSize * 0.85,
                                   color: theme.textTheme.bodyMedium?.color,

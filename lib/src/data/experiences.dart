@@ -8,6 +8,7 @@ class Experiences {
   static final values = [
     Company(
       name: 'Ynmo',
+      location: 'Mecca, Makkah, Saudi Arabia',
       logo: ImageAssetMedia(
         assetPath: 'assets/logos/ynmo_logo.png',
         mimeType: 'images/png',
@@ -17,7 +18,7 @@ class Experiences {
       experiences: [
         Experience(
           title: 'Senior Mobile Software Engineer',
-          location: 'Remote',
+          locationType: 'Remote',
           employmentType: 'Full-time',
           dateRange: DateRange(start: DateTime(2022, 2)),
           description:
@@ -28,6 +29,7 @@ class Experiences {
     ),
     Company(
       name: 'PortMe',
+      location: 'California, United States',
       logo: ImageAssetMedia(
         assetPath: 'assets/logos/portme_logo.png',
         mimeType: 'images/png',
@@ -37,7 +39,7 @@ class Experiences {
       experiences: [
         Experience(
           title: 'Senior Mobile Software Engineer',
-          location: 'Remote',
+          locationType: 'Remote',
           employmentType: 'Contract',
           dateRange: DateRange(start: DateTime(2021, 9), end: DateTime(2022, 4)),
           description:
@@ -48,6 +50,7 @@ class Experiences {
     ),
     Company(
       name: 'Facegraph',
+      location: 'California, United States',
       logo: ImageAssetMedia(
         assetPath: 'assets/logos/facegraph_logo.png',
         mimeType: 'images/png',
@@ -57,7 +60,7 @@ class Experiences {
       experiences: [
         Experience(
           title: 'Senior Software Engineer',
-          location: 'Remote',
+          locationType: 'Remote',
           employmentType: 'Full-time',
           dateRange: DateRange(start: DateTime(2021, 10), end: DateTime(2022, 1)),
           description:
@@ -66,7 +69,7 @@ class Experiences {
         ),
         Experience(
           title: 'Software Engineer II',
-          location: 'Remote',
+          locationType: 'Remote',
           employmentType: 'Full-time',
           dateRange: DateRange(start: DateTime(2019, 12), end: DateTime(2021, 10)),
           description:
@@ -77,6 +80,7 @@ class Experiences {
     ),
     Company(
       name: 'EME International',
+      location: 'Maadi, Cairo, Egypt',
       logo: ImageAssetMedia(
         assetPath: 'assets/logos/eme_logo.png',
         mimeType: 'images/png',
@@ -86,7 +90,7 @@ class Experiences {
       experiences: [
         Experience(
           title: 'Specialist Software Engineer - .NET and Cross-Platform',
-          location: 'Egypt',
+          locationType: 'On-site',
           employmentType: 'Full-time',
           dateRange: DateRange(start: DateTime(2019, 2), end: DateTime(2019, 12)),
           description:
@@ -95,7 +99,7 @@ class Experiences {
         ),
         Experience(
           title: 'Associate Software Engineer - .NET and Cross-Platform',
-          location: 'Egypt',
+          locationType: 'On-site',
           employmentType: 'Full-time',
           dateRange: DateRange(start: DateTime(2018, 3), end: DateTime(2019, 2)),
           description:
