@@ -253,11 +253,32 @@ class ProjectDetailsDialog extends StatelessWidget {
                               ),
                               const SizedBox(width: 8),
                               Expanded(
-                                child: Text(
-                                  experience.title,
-                                  style: GoogleFonts.roboto(
-                                    fontSize: 14,
-                                    color: theme.textTheme.bodyMedium?.color,
+                                child: RichText(
+                                  text: TextSpan(
+                                    style: GoogleFonts.roboto(
+                                      fontSize: 14,
+                                      color: theme.textTheme.bodyMedium?.color,
+                                    ),
+                                    children: [
+                                      TextSpan(
+                                        text: experience.title,
+                                        style: const TextStyle(fontWeight: FontWeight.w500),
+                                      ),
+                                      if (experience.company != null) ...[
+                                        TextSpan(
+                                          text: ' at ',
+                                          style: TextStyle(
+                                            color: theme.textTheme.bodyMedium?.color?.withOpacity(0.6),
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: experience.company!.name,
+                                          style: TextStyle(
+                                            color: theme.colorScheme.primary,
+                                          ),
+                                        ),
+                                      ],
+                                    ],
                                   ),
                                 ),
                               ),
