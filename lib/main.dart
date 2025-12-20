@@ -1933,55 +1933,95 @@ class _AnimatedCompanyExperienceCardState extends State<AnimatedCompanyExperienc
               ),
               const SizedBox(height: 24),
               // Timeline logic
+
               ...widget.company.experiences.asMap().entries.map((entry) {
                 final index = entry.key;
                 final exp = entry.value;
-                // Removed unused isFirst, hasMultipleExperiences, isLast
+                final isLast = index == widget.company.experiences.length - 1;
+                final hasMultipleExperiences = widget.company.experiences.length > 1;
 
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 24.0),
-                  child: Column(
+                return IntrinsicHeight(
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              exp.title,
-                              style: GoogleFonts.roboto(
-                                fontSize: widget.titleFontSize * 0.9,
-                                fontWeight: FontWeight.bold,
-                                color: theme.colorScheme.primary,
+                      if (hasMultipleExperiences) ...[
+                        Column(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(top: 7),
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: !isLast ? theme.colorScheme.primary : Colors.transparent,
+                                border: !isLast
+                                    ? null
+                                    : Border.all(
+                                        color: theme.colorScheme.primary,
+                                        width: 1.5,
+                                      ),
                               ),
                             ),
-                          ),
-                          Text(
-                            exp.dateRange.forResume,
-                            style: GoogleFonts.roboto(
-                              fontSize: widget.textFontSize * 0.9,
-                              color: theme.textTheme.bodyMedium?.color,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${exp.location} · ${exp.employmentType}',
-                        style: GoogleFonts.roboto(
-                          fontSize: widget.textFontSize * 0.85,
-                          color: theme.textTheme.bodyMedium?.color,
-                          fontStyle: FontStyle.italic,
+                            if (!isLast)
+                              Expanded(
+                                child: Container(
+                                  width: 1.5,
+                                  color: theme.colorScheme.primary.withOpacity(0.3),
+                                ),
+                              ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        exp.description,
-                        style: GoogleFonts.roboto(
-                          fontSize: widget.textFontSize,
-                          height: 1.6,
-                          color: theme.textTheme.bodyMedium?.color,
+                        const SizedBox(width: 16),
+                      ],
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 24.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      exp.title,
+                                      style: GoogleFonts.roboto(
+                                        fontSize: widget.titleFontSize * 0.9,
+                                        fontWeight: FontWeight.bold,
+                                        color: theme.colorScheme.primary,
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    exp.dateRange.forResume,
+                                    style: GoogleFonts.roboto(
+                                      fontSize: widget.textFontSize * 0.9,
+                                      color: theme.textTheme.bodyMedium?.color,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${exp.location} · ${exp.employmentType}',
+                                style: GoogleFonts.roboto(
+                                  fontSize: widget.textFontSize * 0.85,
+                                  color: theme.textTheme.bodyMedium?.color,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                exp.description,
+                                style: GoogleFonts.roboto(
+                                  fontSize: widget.textFontSize,
+                                  height: 1.6,
+                                  color: theme.textTheme.bodyMedium?.color,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
