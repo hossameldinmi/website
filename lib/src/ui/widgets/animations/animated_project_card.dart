@@ -107,11 +107,40 @@ class _AnimatedProjectCardState extends State<AnimatedProjectCard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Icon(
-                      Icons.folder_open,
-                      color: theme.colorScheme.primary,
-                      size: 40,
-                    ),
+                    if (widget.project.logo != null)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          color: Colors.white,
+                          child: widget.project.logo!.fold(
+                            asset: (a) => Image(
+                              image: AssetImage(a.assetPath),
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.cover,
+                            ),
+                            network: (n) => Image.network(
+                              n.uri.toString(),
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.cover,
+                            ),
+                            orElse: () => Icon(
+                              Icons.image,
+                              color: theme.colorScheme.primary,
+                              size: 40,
+                            ),
+                          ),
+                        ),
+                      )
+                    else
+                      Icon(
+                        Icons.folder_open,
+                        color: theme.colorScheme.primary,
+                        size: 40,
+                      ),
                     if (widget.onTap != null)
                       Icon(
                         Icons.open_in_new,

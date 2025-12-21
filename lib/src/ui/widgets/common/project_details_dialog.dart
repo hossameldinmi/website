@@ -90,11 +90,40 @@ class ProjectDetailsDialog extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.folder_open,
-                    color: theme.colorScheme.primary,
-                    size: 32,
-                  ),
+                  if (project.logo != null)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        color: Colors.white,
+                        child: project.logo!.fold(
+                          asset: (a) => Image(
+                            image: AssetImage(a.assetPath),
+                            width: 32,
+                            height: 32,
+                            fit: BoxFit.cover,
+                          ),
+                          network: (n) => Image.network(
+                            n.uri.toString(),
+                            width: 32,
+                            height: 32,
+                            fit: BoxFit.cover,
+                          ),
+                          orElse: () => Icon(
+                            Icons.image,
+                            color: theme.colorScheme.primary,
+                            size: 32,
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    Icon(
+                      Icons.folder_open,
+                      color: theme.colorScheme.primary,
+                      size: 32,
+                    ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Text(
@@ -264,20 +293,18 @@ class ProjectDetailsDialog extends StatelessWidget {
                                         text: experience.title,
                                         style: const TextStyle(fontWeight: FontWeight.w500),
                                       ),
-                                      if (experience.company != null) ...[
-                                        TextSpan(
-                                          text: ' at ',
-                                          style: TextStyle(
-                                            color: theme.textTheme.bodyMedium?.color?.withOpacity(0.6),
-                                          ),
+                                      TextSpan(
+                                        text: ' at ',
+                                        style: TextStyle(
+                                          color: theme.textTheme.bodyMedium?.color?.withOpacity(0.6),
                                         ),
-                                        TextSpan(
-                                          text: experience.company!.name,
-                                          style: TextStyle(
-                                            color: theme.colorScheme.primary,
-                                          ),
+                                      ),
+                                      TextSpan(
+                                        text: experience.company.name,
+                                        style: TextStyle(
+                                          color: theme.colorScheme.primary,
                                         ),
-                                      ],
+                                      ),
                                     ],
                                   ),
                                 ),
