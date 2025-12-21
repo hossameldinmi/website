@@ -81,7 +81,7 @@ class _CalendlyWidgetState extends State<CalendlyWidget> {
             initialSettings: InAppWebViewSettings(
               verticalScrollBarEnabled: false,
               disableVerticalScroll: true,
-              overScrollMode: OverScrollMode.IF_CONTENT_SCROLLS,
+              overScrollMode: OverScrollMode.NEVER,
               supportZoom: false,
               disableHorizontalScroll: true,
               useHybridComposition: true,
