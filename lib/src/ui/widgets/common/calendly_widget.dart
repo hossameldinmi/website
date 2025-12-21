@@ -11,41 +11,33 @@ class CalendlyWidget extends StatefulWidget {
 }
 
 class _CalendlyWidgetState extends State<CalendlyWidget> {
-  late InAppWebViewController _controller;
-  late bool _isDark;
+  InAppWebViewController? _controller;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _isDark = false;
   }
 
   @override
-  void didChangeDependencies() async {
+  void didChangeDependencies() {
     super.didChangeDependencies();
-    final currentTheme = Theme.of(context).brightness == Brightness.dark;
-    if (currentTheme != _isDark) {
-      setState(() {
-        _isDark = currentTheme;
-        _isLoading = true;
-      });
-      await _loadCalendlyUrl();
-      setState(() {
-        _isLoading = false;
-      });
+    // Reload when theme changes
+    if (_controller != null) {
+      _loadCalendlyUrl();
     }
   }
 
   Future<void> _loadCalendlyUrl() async {
-    if (_isLoading) return;
+    if (_controller == null || !mounted) return;
+
     // Calendly URL with theme customization
-    if (!mounted) return;
+    final isDark = Theme.brightnessOf(context) == Brightness.dark;
 
     final baseUrl = 'https://calendly.com/${widget.id}';
-    final backgroundColor = _isDark ? '0a192f' : 'ffffff';
-    final textColor = _isDark ? 'ccd6f6' : '0f172a';
-    final primaryColor = _isDark ? '64ffda' : '0ea5e9';
+    final backgroundColor = isDark ? '0a192f' : 'ffffff';
+    final textColor = isDark ? 'ccd6f6' : '0f172a';
+    final primaryColor = isDark ? '64ffda' : '0ea5e9';
 
     final themedUrl = '$baseUrl?'
         'background_color=$backgroundColor&'
@@ -54,20 +46,35 @@ class _CalendlyWidgetState extends State<CalendlyWidget> {
         'hide_event_type_details=0&'
         'hide_gdpr_banner=1';
 
-    await _controller.loadUrl(urlRequest: URLRequest(url: WebUri(themedUrl)));
+    await _controller!.loadUrl(urlRequest: URLRequest(url: WebUri(themedUrl)));
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final baseUrl = 'https://calendly.com/${widget.id}';
+    final backgroundColor = isDark ? '0a192f' : 'ffffff';
+    final textColor = isDark ? 'ccd6f6' : '0f172a';
+    final primaryColor = isDark ? '64ffda' : '0ea5e9';
+
+    final themedUrl = '$baseUrl?'
+        'background_color=$backgroundColor&'
+        'text_color=$textColor&'
+        'primary_color=$primaryColor&'
+        'hide_event_type_details=0&'
+        'hide_gdpr_banner=1';
+
     return Container(
       constraints: const BoxConstraints(maxHeight: 700),
       width: double.infinity,
       child: Stack(
         children: [
           InAppWebView(
+            key: ValueKey(isDark), // Force rebuild when theme changes
             initialUrlRequest: URLRequest(
-              url: WebUri('https://calendly.com/${widget.id}'),
+              url: WebUri(themedUrl),
             ),
             initialSettings: InAppWebViewSettings(
               verticalScrollBarEnabled: false,
@@ -76,7 +83,6 @@ class _CalendlyWidgetState extends State<CalendlyWidget> {
             ),
             onWebViewCreated: (controller) {
               _controller = controller;
-              _loadCalendlyUrl();
             },
             onLoadStop: (controller, url) async {
               // Inject CSS to disable scrolling
