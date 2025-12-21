@@ -206,12 +206,12 @@ class Experiences {
   static final values = [
     Company(
       name: 'Toptal',
-      location: 'Cairo, Egypt',
+      location: 'Delaware, United States',
       logo: ImageAssetMedia(
         assetPath: 'assets/logos/toptal_logo.png',
         mimeType: 'image/png',
         name: 'toptal_logo.png',
-        size: 4.kb,
+        size: 45.5.kb,
       ),
       experiences: [toptalSenior],
     ),

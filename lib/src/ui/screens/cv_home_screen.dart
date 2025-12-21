@@ -51,7 +51,7 @@ class _CVHomePageState extends State<CVHomePage> {
   static final List<Map<String, dynamic>> _sections = [
     {'title': 'About', 'key': aboutKey},
     {'title': 'Experience', 'key': experienceKey},
-    {'title': 'Work', 'key': projectsKey},
+    {'title': 'Projects', 'key': projectsKey},
     {'title': 'Contact', 'key': contactKey},
   ];
 
