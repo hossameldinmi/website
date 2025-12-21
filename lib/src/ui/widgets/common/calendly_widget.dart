@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
@@ -80,16 +82,28 @@ class _CalendlyWidgetState extends State<CalendlyWidget> {
               verticalScrollBarEnabled: false,
               disableVerticalScroll: true,
               overScrollMode: OverScrollMode.IF_CONTENT_SCROLLS,
+              supportZoom: false,
+              disableHorizontalScroll: true,
+              useHybridComposition: true,
+              transparentBackground: false,
             ),
+            gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
             onWebViewCreated: (controller) {
               _controller = controller;
             },
             onLoadStop: (controller, url) async {
-              // Inject CSS to disable scrolling
+              // Inject CSS to disable scrolling and prevent touch event blocking
               await controller.evaluateJavascript(source: '''
                 var style = document.createElement('style');
-                style.innerHTML = 'body, html { overflow: hidden !important; height: 100% !important; }';
+                style.innerHTML = 'body, html { overflow: hidden !important; height: 100% !important; touch-action: pan-y !important; }';
                 document.head.appendChild(style);
+                
+                // Allow parent scroll on touch
+                document.addEventListener('touchmove', function(e) {
+                  if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'SELECT') {
+                    e.stopPropagation();
+                  }
+                }, { passive: true });
               ''');
               setState(() {
                 _isLoading = false;
